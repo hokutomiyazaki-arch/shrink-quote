@@ -3,7 +3,7 @@
 //       オフライン時のみキャッシュへフォールバック。
 // index.html 側で controllerchange を検知して location.reload() する前提。
 // 🔴 デプロイのたびに CACHE_NAME の番号を上げる
-const CACHE_NAME = 'shrink-quote-v1.2.0';
+const CACHE_NAME = 'shrink-quote-v1.3.0';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -15,6 +15,8 @@ const ASSETS_TO_CACHE = [
   './icons/icon-512.png',
   './icons/apple-touch-icon.png',
   './icons/favicon-32.png',
+  './assets/voice/intro.mp3', './assets/voice/both.mp3', './assets/voice/right.mp3', './assets/voice/left.mp3',
+  './assets/voice/endcover.mp3', './assets/voice/end.mp3', './assets/voice/finish.mp3',
   'https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap'
 ];
 

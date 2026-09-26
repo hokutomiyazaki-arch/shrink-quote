@@ -146,6 +146,30 @@
   body.idle header > *{ pointer-events:none; }
   body.idle{ cursor:none; }
 
+  /* ===== プログラムの案内カード（右目で見る・左目を隠す…） ===== */
+  .progCard{ position:fixed; z-index:40; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:min(92vw,520px); padding:26px 22px 22px; border-radius:22px; text-align:center;
+    background:rgba(18,26,42,.97); border:1px solid var(--line); box-shadow:0 20px 60px rgba(0,0,0,.55); color:var(--ink); }
+  .progCard .step{ font-size:12px; letter-spacing:.18em; color:var(--muted); }
+  .progCard .eyes{ display:flex; justify-content:center; gap:28px; margin:18px 0 14px; }
+  .progCard .eye{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .progCard .eye .ic{ position:relative; width:92px; height:58px; border-radius:50%;
+    border:4px solid var(--accent); display:flex; align-items:center; justify-content:center; }
+  .progCard .eye .ic::after{ content:""; width:24px; height:24px; border-radius:50%; background:var(--accent); }
+  .progCard .eye.cover .ic{ border-color:var(--muted); background:rgba(255,255,255,.08); }
+  .progCard .eye.cover .ic::after{ content:"✋"; width:auto; height:auto; background:none; font-size:34px; line-height:1; }
+  .progCard .eye b{ font-size:15px; }
+  .progCard .eye small{ font-size:13px; font-weight:800; padding:2px 12px; border-radius:999px; }
+  .progCard .eye.open small{ background:var(--accent); color:var(--accentInk); }
+  .progCard .eye.cover small{ background:rgba(255,255,255,.12); color:var(--ink); }
+  .progCard h3{ font-size:clamp(24px,6vw,32px); font-weight:800; color:var(--accent); line-height:1.4; }
+  .progCard .sub{ font-size:16px; margin-top:6px; min-height:1.7em; }
+  .progCard .count{ font-family:var(--mono); font-size:44px; font-weight:600; margin-top:10px; font-variant-numeric:tabular-nums; }
+  .progCard .count:empty{ display:none; }
+  .progCard .close{ margin-top:16px; }
+  .hud .prog{ border-color:var(--accent); }
+  .btn.mode[aria-pressed="true"]{ border-color:var(--accent); color:var(--accent); }
+
   /* ===== サイドメニュー（右から。モーダルにしない） ===== */
   .overlay{ position:fixed; inset:0; background:rgba(0,0,0,.35); opacity:0; visibility:hidden;
     transition:opacity .3s ease, visibility .3s ease; z-index:80; }
@@ -254,15 +278,29 @@
   <button class="menuBtn" id="menuBtn" type="button" aria-label="メニューを開く" aria-haspopup="true">☰</button>
 </header>
 
+<div class="progCard" id="progCard" role="status" aria-live="assertive" hidden>
+  <div class="step" id="pcStep"></div>
+  <div class="eyes" id="pcEyes">
+    <div class="eye open" id="eyeL"><span class="ic"></span><b>左目</b><small id="eyeLs">見る</small></div>
+    <div class="eye open" id="eyeR"><span class="ic"></span><b>右目</b><small id="eyeRs">見る</small></div>
+  </div>
+  <h3 id="pcTitle"></h3>
+  <p class="sub" id="pcSub"></p>
+  <div class="count" id="pcCount"></div>
+  <button class="btn primary close" id="pcClose" type="button" hidden>閉じる</button>
+</div>
+
 <div class="hud" aria-hidden="true">
   <span>文字 <b id="hudSize">72.0</b>px</span>
   <span>最小 <b id="hudMin">8</b>px</span>
   <span><b id="hudCycles">0</b> 回</span>
   <span><b id="hudTime">00:00</b></span>
+  <span class="prog" id="hudProg" hidden></span>
 </div>
 
 <div class="controls" id="controls">
   <button class="btn primary" id="playBtn" type="button"><span id="playLabel">スタート</span><kbd>Space</kbd></button>
+  <button class="btn mode" id="modeBtn" type="button" aria-pressed="false">片目プログラム</button>
   <button class="btn" id="nextBtn" type="button">次の言葉<kbd>N</kbd></button>
   <button class="btn" id="fsBtn" type="button">全画面<kbd>F</kbd></button>
 </div>
@@ -273,6 +311,30 @@
   <div class="top"><b>メニュー</b><button class="closeBtn" id="closeMenu" type="button" aria-label="メニューを閉じる">×</button></div>
 
   <form id="form" autocomplete="off">
+    <h4>モード</h4>
+    <div class="group">
+      <div class="seg" role="radiogroup" aria-label="モード">
+        <label><input type="radio" name="mode" id="mode-free" value="free"><span>フリー</span></label>
+        <label><input type="radio" name="mode" id="mode-program" value="program"><span>片目プログラム</span></label>
+      </div>
+      <div class="field">
+        <span class="label">順番</span>
+        <div class="seg" role="radiogroup" aria-label="順番">
+          <label><input type="radio" name="prog" id="prog-std" value="std"><span>両→右→左→両</span></label>
+          <label><input type="radio" name="prog" id="prog-rl" value="rl"><span>右→左</span></label>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-top"><label for="phaseSec">1回の時間</label><output id="phaseSecOut" for="phaseSec">1分</output></div>
+        <input type="range" id="phaseSec" min="15" max="180" step="15">
+      </div>
+      <div class="field">
+        <div class="field-top"><label for="prepSec">目を隠す準備の時間</label><output id="prepSecOut" for="prepSec">5 秒</output></div>
+        <input type="range" id="prepSec" min="3" max="10" step="1">
+        <p class="hint">切り替えのたびに、画面と声で「左目を手で隠して、右目だけで見てください」のように案内します。</p>
+      </div>
+    </div>
+
     <h4>言葉</h4>
     <div class="group">
       <div class="seg" role="radiogroup" aria-label="言語">
@@ -595,6 +657,7 @@ const $ = id => document.getElementById(id);
    設定（localStorage。読めない端末でも既定値で動く）
    ========================================================= */
 const DEFAULTS = {
+  mode:"free", prog:"std", phaseSec:60, prepSec:5,
   lang:"mix", cats:[], meaning:true, change:true, showAuthor:true,
   min:8, max:72, shrink:6, hold:1, ret:"smooth",
   motion: matchMedia("(prefers-reduced-motion: reduce)").matches ? "still" : "move",
@@ -685,7 +748,8 @@ function bgmSetGain(){
   if(!b.gain || !window.audioCtx) return;
   let speaking = false;
   try{ speaking = !!(window.speechSynthesis && window.speechSynthesis.speaking); }catch(e){}
-  const vol = (S.bgmVol / 100) * (speaking ? 0.35 : 1);   // 読み上げ中は下げる
+  speaking = speaking || voicePlaying();
+  const vol = (S.bgmVol / 100) * (speaking ? 0.35 : 1);   // 読み上げ・案内の声の間は下げる
   b.gain.gain.setTargetAtTime(vol, window.audioCtx.currentTime, 0.4);
 }
 /* 鳴らすべき状態か（音オン・曲を選んでいる・動いている）に合わせて、流す／止める */
@@ -753,12 +817,13 @@ function sweepEnsure(){
 }
 function sweepUpdate(phase, k){
   const w = window.sweep;
-  if(!w.osc){ if(window.running && S.sweep && !window.muted) sweepEnsure(); if(!w.osc) return; }
+  if(!w.osc){ if(window.active && S.sweep && !window.muted) sweepEnsure(); if(!w.osc) return; }
   const ctx = window.audioCtx, now = ctx.currentTime;
   const moving = phase === "shrink" || phase === "grow";
-  const on = window.running && moving && S.sweep && !window.muted && document.visibilityState === "visible";
+  const on = window.active && moving && S.sweep && !window.muted && document.visibilityState === "visible";
   let speaking = false;
   try{ speaking = !!(window.speechSynthesis && window.speechSynthesis.speaking); }catch(e){}
+  speaking = speaking || voicePlaying();
   const vol = on ? 0.12 * (S.sweepVol / 100) * (speaking ? 0.35 : 1) : 0;
   const f = SWEEP_LOW * Math.pow(SWEEP_HIGH / SWEEP_LOW, 1 - k);
   w.osc.frequency.setTargetAtTime(f, now, 0.02);
@@ -956,7 +1021,11 @@ function onCycle(){
 let last = performance.now(), hudTick = 0;
 function frame(now){
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
-  if(window.running){ t += dt; total += dt; }
+  if(window.running) progTick(dt);
+  // プログラムの案内中（目を隠す準備・区切り）は、言葉を止めておく
+  window.active = window.running && (!prog.on || prog.stage === "run");
+  if(window.active){ t += dt; total += dt; }
+  target.style.opacity = prog.on && prog.stage !== "run" ? ".12" : "";   // 案内中はカードに目を向ける
 
   const min = Math.min(S.min, S.max), max = Math.max(S.min, S.max);
   const [phase, k] = phaseLevel();
@@ -966,7 +1035,7 @@ function frame(now){
 
   const w = target.offsetWidth, h = target.offsetHeight, hw = w / 2, hh = h / 2;
   if(S.motion === "move"){
-    if(window.running){
+    if(window.active){
       const near = Math.hypot(tx - cx, ty - cy) < Math.max(24, S.speed * 0.15);
       if(total >= nextTurn || near) newDirection();
       cx += vx * S.speed * dt; cy += vy * S.speed * dt;
@@ -982,7 +1051,7 @@ function frame(now){
     if(h >= H) cy = H / 2;
     else if(cy - hh < 0){ cy = hh; hit = hit || vy < 0; }
     else if(cy + hh > H){ cy = H - hh; hit = hit || vy > 0; }
-    if(hit && window.running) newDirection();
+    if(hit && window.active) newDirection();
   }else{
     cx = W / 2; cy = H / 2;
   }
@@ -1015,21 +1084,142 @@ document.addEventListener("visibilitychange", () => {
 });
 
 /* =========================================================
+   片目プログラム（両目1分 → 右目1分 → 左目1分 → 両目1分）
+   各段の前に「どちらの目を隠すか」を画面と声で出し、準備の時間を置いてから始める。
+   段が終わったら「そこまで」を出す。案内のあいだは言葉を止めておく。
+   声は ElevenLabs（リョウ・eleven_v3）で作った assets/voice/*.mp3（tools/make_voice.py）
+   ========================================================= */
+const PROGS = { std:["both", "right", "left", "both"], rl:["right", "left"] };
+const EYE = {
+  both:  { title:"両目で見る",  sub:"手はおろしたまま",          L:"open",  R:"open"  },
+  right: { title:"右目で見る",  sub:"左目を手で隠してください",   L:"cover", R:"open"  },
+  left:  { title:"左目で見る",  sub:"右目を手で隠してください",   L:"open",  R:"cover" }
+};
+const VOICE_SEC = { intro:2.4, both:1.8, right:3.7, left:4.2, endcover:2.4, end:1.5, finish:3.3 };
+window.prog = { on:false, idx:0, stage:"", left:0 };
+const prog = window.prog;
+
+/* 声：1つの <audio> を使い回す（iOS はユーザー操作の外で新しく作った要素を鳴らさない） */
+window.voiceEl = null;
+function voiceUnlock(){
+  try{
+    if(!window.voiceEl){ window.voiceEl = new Audio(); window.voiceEl.preload = "auto"; }
+    const v = window.voiceEl;
+    v.src = "assets/voice/end.mp3"; v.muted = true;
+    const p = v.play(); if(p) p.then(() => { v.pause(); v.muted = false; }).catch(() => { v.muted = false; });
+    v.addEventListener("play", bgmSetGain); v.addEventListener("ended", bgmSetGain);
+  }catch(e){}
+}
+function playVoice(id){
+  if(window.muted || !window.voiceEl) return;
+  try{
+    stopSpeak();
+    const v = window.voiceEl; v.muted = false; v.src = "assets/voice/" + id + ".mp3"; v.currentTime = 0;
+    const p = v.play(); if(p) p.catch(() => showLockbar());
+  }catch(e){ showLockbar(); }
+}
+function voicePlaying(){ const v = window.voiceEl; return !!(v && !v.paused && !v.ended); }
+
+function progShow(kind, phase){
+  const card = $("progCard"), list = PROGS[S.prog] || PROGS.std;
+  card.hidden = false;
+  $("pcClose").hidden = kind !== "finish";
+  $("pcEyes").hidden = kind === "finish" || kind === "intro";
+  $("pcStep").textContent = (kind === "prep" || kind === "post") ? (prog.idx + 1) + " / " + list.length : "";
+  if(kind === "intro"){ $("pcTitle").textContent = "片目プログラム"; $("pcSub").textContent = list.map(x => EYE[x].title.replace("で見る", "")).join(" → ") + "（各" + outputs.phaseSec(S.phaseSec) + "）"; }
+  if(kind === "prep"){
+    const e = EYE[phase];
+    $("pcTitle").textContent = e.title; $("pcSub").textContent = e.sub;
+    for(const side of ["L", "R"]){
+      $("eye" + side).className = "eye " + e[side];
+      $("eye" + side + "s").textContent = e[side] === "open" ? "見る" : "隠す";
+    }
+  }
+  if(kind === "post"){ $("pcTitle").textContent = "そこまで"; $("pcSub").textContent = phase === "both" ? "" : "手をおろしてください"; }
+  if(kind === "finish"){ $("pcTitle").textContent = "おつかれさまでした"; $("pcSub").textContent = "片目プログラムはこれで終わりです"; }
+}
+function progHide(){ $("progCard").hidden = true; $("pcCount").textContent = ""; }
+function progReset(){
+  prog.on = false; prog.stage = ""; prog.idx = 0;
+  progHide(); $("hudProg").hidden = true;
+  syncModeUI();
+}
+function progStart(){
+  prog.on = true; prog.idx = 0; prog.stage = "intro"; prog.left = 3;
+  total = 0; cycles = 0;
+  progShow("intro"); playVoice("intro");
+}
+function progEnter(stage){
+  const list = PROGS[S.prog] || PROGS.std, phase = list[prog.idx];
+  prog.stage = stage;
+  if(stage === "prep"){
+    prog.left = VOICE_SEC[phase] + S.prepSec;
+    progShow("prep", phase); playVoice(phase);
+  }else if(stage === "run"){
+    prog.left = S.phaseSec; t = 0;            // 毎回、最大サイズから始める
+    progHide(); newDirection();
+    if(S.change) pickNew();
+  }else if(stage === "post"){
+    prog.left = 3;
+    progShow("post", phase); playVoice(phase === "both" ? "end" : "endcover");
+  }else if(stage === "finish"){
+    progShow("finish"); playVoice("finish");
+    prog.on = false;
+    setRunning(false);
+  }
+}
+function progTick(dt){
+  if(!prog.on) return;
+  prog.left -= dt;
+  const list = PROGS[S.prog] || PROGS.std;
+  if(prog.stage === "prep") $("pcCount").textContent = Math.max(1, Math.ceil(prog.left));
+  else $("pcCount").textContent = "";
+  if(prog.stage !== "run") $("hudProg").hidden = true;
+  if(prog.stage === "run"){
+    const e = EYE[list[prog.idx]], s = Math.max(0, Math.ceil(prog.left));
+    $("hudProg").hidden = false;
+    $("hudProg").innerHTML = "<b>" + e.title.replace("で見る", "") + "</b> 残り " + Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0") + "（" + (prog.idx + 1) + "/" + list.length + "）";
+  }
+  if(prog.left > 0) return;
+  if(prog.stage === "intro") progEnter("prep");
+  else if(prog.stage === "prep") progEnter("run");
+  else if(prog.stage === "run") progEnter("post");
+  else if(prog.stage === "post"){
+    prog.idx++;
+    if(prog.idx >= list.length){ $("hudProg").hidden = true; progEnter("finish"); }
+    else progEnter("prep");
+  }
+}
+function syncModeUI(){
+  const on = S.mode === "program";
+  $("modeBtn").setAttribute("aria-pressed", on ? "true" : "false");
+  $("playLabel").textContent = window.running ? "一時停止" : (prog.on ? "再開" : (on ? "プログラム開始" : (total > 0 ? "再開" : "スタート")));
+}
+
+/* =========================================================
    操作
    ========================================================= */
 function setRunning(on){
   window.running = on;
-  $("playLabel").textContent = on ? "一時停止" : (total > 0 ? "再開" : "スタート");
+  if(on && S.mode === "program" && !prog.on){ progStart(); }
+  syncModeUI();
   if(on){
     requestWakeLock();
-    if(total === 0) speakText(window.cur.text, window.cur.lang);
+    if(total === 0 && !prog.on) speakText(window.cur.text, window.cur.lang);
   }else{
     releaseWakeLock(); stopSpeak(); sweepSilence();
+    try{ if(window.voiceEl && prog.on) window.voiceEl.pause(); }catch(e){}
   }
   bgmSync();
   poke();
 }
 $("playBtn").addEventListener("click", () => setRunning(!window.running));
+$("modeBtn").addEventListener("click", () => {
+  S.mode = S.mode === "program" ? "free" : "program"; save();
+  if(window.running) setRunning(false);
+  progReset(); syncForm();
+});
+$("pcClose").addEventListener("click", () => { progReset(); total = 0; cycles = 0; syncModeUI(); });
 $("nextBtn").addEventListener("click", () => {
   pickNew(); t = 0;
   if(window.running) speakText(window.cur.text, window.cur.lang);
@@ -1104,7 +1294,9 @@ overlay.addEventListener("click", closeMenu);
    ========================================================= */
 const outputs = {
   min:v => v + " px", max:v => v + " px", shrink:v => v + " 秒",
-  hold:v => v + " 秒", speed:v => v + " px/秒", turn:v => "約 " + v + " 秒"
+  hold:v => v + " 秒", speed:v => v + " px/秒", turn:v => "約 " + v + " 秒",
+  phaseSec:v => v % 60 ? (v >= 60 ? Math.floor(v / 60) + "分" : "") + (v % 60) + "秒" : (v / 60) + "分",
+  prepSec:v => v + " 秒"
 };
 function catRender(){
   const box = $("catChips"); box.innerHTML = "";
@@ -1127,7 +1319,7 @@ function catRender(){
 }
 function syncForm(){
   for(const k of Object.keys(outputs)){ $(k).value = S[k]; $(k + "Out").textContent = outputs[k](S[k]); }
-  for(const name of ["lang", "ret", "motion", "dir", "font", "stageColor"]){
+  for(const name of ["mode", "prog", "lang", "ret", "motion", "dir", "font", "stageColor"]){
     const el = document.querySelector('input[name="' + name + '"][value="' + S[name] + '"]');
     if(el) el.checked = true;
   }
@@ -1142,6 +1334,7 @@ function syncForm(){
   $("meaning").disabled = S.lang === "ja";
   $("meaningRow").classList.toggle("disabled", S.lang === "ja");
   target.classList.toggle("mincho", S.font === "mincho");
+  if(typeof syncModeUI === "function" && window.prog) syncModeUI();
   stage.dataset.stage = S.stageColor;
   applyMuteUI();
 }
@@ -1160,6 +1353,7 @@ $("form").addEventListener("input", e => {
   }else if(el.type === "radio"){
     S[el.name] = el.value;
     if(el.name === "lang"){ pickNew(); t = 0; catRender(); }
+    if(el.name === "mode" || el.name === "prog") progReset();
     if(el.name === "dir") newDirection();
     needLayout = el.name === "font";
   }else if(el.type === "checkbox"){
@@ -1184,6 +1378,7 @@ $("minChips").addEventListener("click", e => {
 $("muteToggle").addEventListener("click", e => { e.stopPropagation(); setMuted(!window.muted); });
 $("tapStart").addEventListener("click", () => {
   unlockAudio();
+  voiceUnlock();
   $("splash").classList.add("hide");
   $("splash").setAttribute("aria-hidden", "true");
   $("playBtn").focus();
