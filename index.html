@@ -187,6 +187,7 @@
   .chips{ display:flex; gap:6px; flex-wrap:wrap; }
   .chip{ padding:4px 11px; border-radius:999px; font-family:var(--mono); font-size:12.5px; font-weight:500;
     background:var(--card); border:1px solid var(--line); color:var(--ink); }
+  .chip.cat{ font-family:var(--round); font-weight:700; font-size:12.5px; }
   .chip[aria-pressed="true"]{ background:var(--accent); color:var(--accentInk); border-color:var(--accent); }
 
   .toggle-row{ display:flex; align-items:center; justify-content:space-between; gap:12px;
@@ -279,6 +280,10 @@
         <label><input type="radio" name="lang" id="lang-en" value="en"><span>English</span></label>
         <label><input type="radio" name="lang" id="lang-mix" value="mix"><span>ミックス</span></label>
       </div>
+      <div class="field">
+        <span class="label">カテゴリ<small class="hint">（何も選ばなければ全部）</small></span>
+        <div class="chips" id="catChips"></div>
+      </div>
       <div class="toggle-row" id="meaningRow">
         <span>英語のあとに<br>日本語の意味を出す</span>
         <label class="switch"><input type="checkbox" id="meaning" aria-label="英語のあとに日本語の意味を出す"><span class="slider"></span></label>
@@ -288,7 +293,7 @@
         <label class="switch"><input type="checkbox" id="change" aria-label="1回縮むごとに新しい言葉にする"><span class="slider"></span></label>
       </div>
       <div class="toggle-row">
-        <span>誰の言葉かを表示</span>
+        <span>誰の言葉か（肩書）を表示</span>
         <label class="switch"><input type="checkbox" id="showAuthor" aria-label="誰の言葉かを表示"><span class="slider"></span></label>
       </div>
     </div>
@@ -437,84 +442,150 @@
 
 <script>
 /* =========================================================
-   言葉のデータ
-   ・日本語 [言葉, 誰の言葉か]
-   ・英語   [言葉, 誰の言葉か, 日本語の意味]
-   🔴 名言は取り違えが多い。出典がはっきりしないものには作者を付けない
+   言葉のデータ  { t:言葉, a:言った人, r:肩書・出典, c:カテゴリ, ja:英語の日本語の意味 }
+   🔴 名言は取り違えが多い。本人の言葉と確かめられないもの
+      （アインシュタインやガンジーの言葉「とされる」もの等）は入れない。
+      ことわざ・作者のない言葉は a を空にし、r に種類だけを書く
    ========================================================= */
+const CATEGORIES = [
+  { id:"effort",  label:"努力・継続" },
+  { id:"courage", label:"挑戦・勇気" },
+  { id:"wisdom",  label:"学び・知恵" },
+  { id:"life",    label:"生き方・人生" },
+  { id:"mind",    label:"心・メンタル" },
+  { id:"work",    label:"仕事・成功" },
+  { id:"people",  label:"仲間・人" },
+  { id:"body",    label:"からだ・健康" }
+];
 const QUOTES = {
   ja: [
-    ["千里の道も一歩から", "老子"],
-    ["継続は力なり", ""],
-    ["七転び八起き", ""],
-    ["石の上にも三年", ""],
-    ["急がば回れ", ""],
-    ["塵も積もれば山となる", ""],
-    ["雨垂れ石を穿つ", ""],
-    ["失敗は成功のもと", ""],
-    ["思い立ったが吉日", ""],
-    ["好きこそ物の上手なれ", ""],
-    ["案ずるより産むが易し", ""],
-    ["笑う門には福来る", ""],
-    ["為せば成る 為さねば成らぬ 何事も", "上杉鷹山"],
-    ["初心忘るべからず", "世阿弥"],
-    ["過ぎたるは猶及ばざるが如し", "『論語』"],
-    ["学びて思わざれば則ち罔し", "『論語』"],
-    ["己の欲せざる所は人に施す勿れ", "『論語』"],
-    ["我思う、ゆえに我あり", "デカルト"],
-    ["人間は考える葦である", "パスカル"],
-    ["知は力なり", "フランシス・ベーコン"],
-    ["汝自身を知れ", "デルポイの格言"],
-    ["少年よ、大志を抱け", "ウィリアム・S・クラーク"],
-    ["天は自ら助くる者を助く", "サミュエル・スマイルズ『自助論』"],
-    ["天才とは1%のひらめきと99%の努力である", "トーマス・エジソン"],
-    ["雨ニモマケズ 風ニモマケズ", "宮沢賢治"],
-    ["置かれた場所で咲きなさい", "渡辺和子"],
-    ["一日一生", "内村鑑三"],
-    ["今日の一歩が、明日の景色を変える", ""],
-    ["完璧より、まず一歩", ""],
-    ["昨日の自分を、少しだけ超えていく", ""],
-    ["焦らず、止まらず、続けていく", ""],
-    ["小さな積み重ねが、大きな差になる", ""],
-    ["できない理由より、できる方法を探す", ""],
-    ["いまこの瞬間に、集中する", ""],
-    ["迷ったら、ワクワクする方へ", ""],
-    ["行動が、不安を小さくする", ""],
-    ["比べる相手は、昨日の自分", ""]
+    // 努力・継続
+    { t:"千里の道も一歩から", a:"老子", r:"古代中国の思想家", c:"effort" },
+    { t:"継続は力なり", a:"", r:"ことわざ", c:"effort" },
+    { t:"石の上にも三年", a:"", r:"ことわざ", c:"effort" },
+    { t:"塵も積もれば山となる", a:"", r:"ことわざ", c:"effort" },
+    { t:"雨垂れ石を穿つ", a:"", r:"ことわざ", c:"effort" },
+    { t:"為せば成る 為さねば成らぬ 何事も", a:"上杉鷹山", r:"江戸時代の米沢藩主", c:"effort" },
+    { t:"天才とは1%のひらめきと99%の努力である", a:"トーマス・エジソン", r:"アメリカの発明家", c:"effort" },
+    { t:"小さなことを積み重ねることが、とんでもないところへ行くただひとつの道", a:"イチロー", r:"プロ野球選手", c:"effort" },
+    { t:"小さな積み重ねが、大きな差になる", a:"", r:"", c:"effort" },
+    { t:"焦らず、止まらず、続けていく", a:"", r:"", c:"effort" },
+    // 挑戦・勇気
+    { t:"七転び八起き", a:"", r:"ことわざ", c:"courage" },
+    { t:"失敗は成功のもと", a:"", r:"ことわざ", c:"courage" },
+    { t:"思い立ったが吉日", a:"", r:"ことわざ", c:"courage" },
+    { t:"案ずるより産むが易し", a:"", r:"ことわざ", c:"courage" },
+    { t:"虎穴に入らずんば虎子を得ず", a:"", r:"中国の故事成語", c:"courage" },
+    { t:"少年よ、大志を抱け", a:"ウィリアム・S・クラーク", r:"札幌農学校の初代教頭", c:"courage" },
+    { t:"できない理由より、できる方法を探す", a:"", r:"", c:"courage" },
+    { t:"行動が、不安を小さくする", a:"", r:"", c:"courage" },
+    { t:"迷ったら、ワクワクする方へ", a:"", r:"", c:"courage" },
+    { t:"完璧より、まず一歩", a:"", r:"", c:"courage" },
+    // 学び・知恵
+    { t:"初心忘るべからず", a:"世阿弥", r:"室町時代の能役者", c:"wisdom" },
+    { t:"故きを温ねて新しきを知る", a:"孔子", r:"古代中国の思想家『論語』", c:"wisdom" },
+    { t:"学びて思わざれば則ち罔し", a:"孔子", r:"古代中国の思想家『論語』", c:"wisdom" },
+    { t:"過ぎたるは猶及ばざるが如し", a:"孔子", r:"古代中国の思想家『論語』", c:"wisdom" },
+    { t:"知は力なり", a:"フランシス・ベーコン", r:"イギリスの哲学者", c:"wisdom" },
+    { t:"汝自身を知れ", a:"", r:"古代ギリシャ・デルポイの神殿の格言", c:"wisdom" },
+    { t:"我思う、ゆえに我あり", a:"デカルト", r:"フランスの哲学者", c:"wisdom" },
+    { t:"人間は考える葦である", a:"パスカル", r:"フランスの哲学者・数学者", c:"wisdom" },
+    { t:"聞くは一時の恥、聞かぬは一生の恥", a:"", r:"ことわざ", c:"wisdom" },
+    { t:"好きこそ物の上手なれ", a:"", r:"ことわざ", c:"wisdom" },
+    { t:"急がば回れ", a:"", r:"ことわざ", c:"wisdom" },
+    // 生き方・人生
+    { t:"一期一会", a:"", r:"茶道の言葉", c:"life" },
+    { t:"一日一生", a:"内村鑑三", r:"明治・大正のキリスト教思想家", c:"life" },
+    { t:"置かれた場所で咲きなさい", a:"渡辺和子", r:"修道女・ノートルダム清心学園理事長", c:"life" },
+    { t:"雨ニモマケズ 風ニモマケズ", a:"宮沢賢治", r:"詩人・童話作家", c:"life" },
+    { t:"己の欲せざる所は人に施す勿れ", a:"孔子", r:"古代中国の思想家『論語』", c:"life" },
+    { t:"天は自ら助くる者を助く", a:"サミュエル・スマイルズ", r:"イギリスの作家『自助論』", c:"life" },
+    { t:"人生は近くで見ると悲劇だが、遠くから見れば喜劇だ", a:"チャールズ・チャップリン", r:"喜劇俳優・映画監督", c:"life" },
+    { t:"明日は明日の風が吹く", a:"", r:"ことわざ", c:"life" },
+    { t:"今日の一歩が、明日の景色を変える", a:"", r:"", c:"life" },
+    { t:"比べる相手は、昨日の自分", a:"", r:"", c:"life" },
+    // 心・メンタル
+    { t:"笑う門には福来る", a:"", r:"ことわざ", c:"mind" },
+    { t:"人間万事塞翁が馬", a:"", r:"中国の故事成語", c:"mind" },
+    { t:"雨降って地固まる", a:"", r:"ことわざ", c:"mind" },
+    { t:"足るを知る者は富む", a:"老子", r:"古代中国の思想家", c:"mind" },
+    { t:"心頭滅却すれば火もまた涼し", a:"快川紹喜", r:"戦国時代の禅僧", c:"mind" },
+    { t:"いまこの瞬間に、集中する", a:"", r:"", c:"mind" },
+    { t:"昨日の自分を、少しだけ超えていく", a:"", r:"", c:"mind" },
+    // 仕事・成功
+    { t:"段取り八分、仕事二分", a:"", r:"仕事の格言", c:"work" },
+    { t:"備えあれば憂いなし", a:"", r:"ことわざ", c:"work" },
+    { t:"急いては事を仕損じる", a:"", r:"ことわざ", c:"work" },
+    { t:"時は金なり", a:"", r:"ことわざ", c:"work" },
+    // 仲間・人
+    { t:"三人寄れば文殊の知恵", a:"", r:"ことわざ", c:"people" },
+    { t:"情けは人の為ならず", a:"", r:"ことわざ", c:"people" },
+    { t:"和を以て貴しと為す", a:"聖徳太子", r:"飛鳥時代の皇族『十七条憲法』", c:"people" },
+    { t:"実るほど頭を垂れる稲穂かな", a:"", r:"ことわざ", c:"people" },
+    // からだ・健康
+    { t:"腹八分目に医者いらず", a:"", r:"ことわざ", c:"body" },
+    { t:"早起きは三文の徳", a:"", r:"ことわざ", c:"body" },
+    { t:"病は気から", a:"", r:"ことわざ", c:"body" },
+    { t:"健全な精神は健全な身体に宿る", a:"ユウェナリス", r:"古代ローマの詩人。『風刺詩』の一節から", c:"body" }
   ],
   en: [
-    ["The journey of a thousand miles begins with one step.", "Lao Tzu", "千里の道も、一歩から始まる"],
-    ["The only way to do great work is to love what you do.", "Steve Jobs", "すばらしい仕事をする唯一の方法は、自分のしていることを愛すること"],
-    ["Well done is better than well said.", "Benjamin Franklin", "うまく言うより、うまくやるほうがいい"],
-    ["The unexamined life is not worth living.", "Socrates", "吟味されない人生は、生きるに値しない"],
-    ["Know thyself.", "Delphic maxim", "汝自身を知れ"],
-    ["I think, therefore I am.", "René Descartes", "我思う、ゆえに我あり"],
-    ["Fortune favors the bold.", "Latin proverb", "幸運は、勇気ある者に味方する"],
-    ["Imagination is more important than knowledge.", "Albert Einstein", "想像力は、知識よりも大切だ"],
-    ["Genius is one percent inspiration and ninety-nine percent perspiration.", "Thomas Edison", "天才とは、1%のひらめきと99%の汗である"],
-    ["What does not kill me makes me stronger.", "Friedrich Nietzsche", "私を殺さないものは、私をより強くする"],
-    ["We are what we repeatedly do.", "Will Durant", "私たちは、くり返し行うことでできている"],
-    ["Do. Or do not. There is no try.", "Yoda, The Empire Strikes Back", "やるか、やらないかだ。「ためしに」はない"],
-    ["Hope is a good thing, maybe the best of things.", "The Shawshank Redemption", "希望はいいものだ。たぶん、何よりもいいものだ"],
-    ["Carpe diem.", "Horace", "今日という日を摘め（今を生きよ）"],
-    ["To be, or not to be, that is the question.", "William Shakespeare", "生きるべきか、死ぬべきか、それが問題だ"],
-    ["Practice makes perfect.", "Proverb", "練習が完璧をつくる（習うより慣れよ）"],
-    ["Rome wasn't built in a day.", "Proverb", "ローマは一日にして成らず"],
-    ["Where there's a will, there's a way.", "Proverb", "意志あるところに道はある"],
-    ["Actions speak louder than words.", "Proverb", "行動は、言葉よりも雄弁だ"],
-    ["Slow and steady wins the race.", "Proverb", "ゆっくりでも着実な者が勝つ"],
-    ["If you want to go fast, go alone. If you want to go far, go together.", "Proverb", "早く行きたいなら、ひとりで行け。遠くへ行きたいなら、みんなで行け"],
-    ["The man who moves a mountain begins by carrying away small stones.", "Proverb", "山を動かす人は、小さな石を運ぶことから始める"],
-    ["The best time to plant a tree was twenty years ago. The second best time is now.", "Proverb", "木を植えるいちばんの時期は20年前だった。次にいい時期は、いまだ"],
-    ["Progress, not perfection.", "", "完璧より、前進を"],
-    ["Done is better than perfect.", "", "完璧を目指すより、まず終わらせよう"],
-    ["Small steps every day.", "", "毎日、小さな一歩を"],
-    ["Focus on what you can control.", "", "自分で変えられることに集中しよう"],
-    ["Your future is created by what you do today.", "", "未来は、今日の行動がつくる"],
-    ["Stay curious. Keep going.", "", "好奇心を持ち続けて、進み続けよう"],
-    ["Discipline is choosing what you want most over what you want now.", "", "自制とは「いま欲しいもの」より「いちばん欲しいもの」を選ぶこと"],
-    ["Be stronger than your excuses.", "", "言い訳よりも、強くあれ"],
-    ["One more rep. One more page. One more step.", "", "あと1回。あと1ページ。あと一歩。"]
+    // 努力・継続
+    { t:"The journey of a thousand miles begins with one step.", a:"Lao Tzu", r:"古代中国の思想家", c:"effort", ja:"千里の道も、一歩から始まる" },
+    { t:"Genius is one percent inspiration and ninety-nine percent perspiration.", a:"Thomas Edison", r:"アメリカの発明家", c:"effort", ja:"天才とは、1%のひらめきと99%の汗である" },
+    { t:"We are what we repeatedly do.", a:"Will Durant", r:"アメリカの歴史家・哲学者", c:"effort", ja:"私たちは、くり返し行うことでできている" },
+    { t:"Rome wasn't built in a day.", a:"", r:"英語のことわざ", c:"effort", ja:"ローマは一日にして成らず" },
+    { t:"Practice makes perfect.", a:"", r:"英語のことわざ", c:"effort", ja:"練習が完璧をつくる（習うより慣れよ）" },
+    { t:"Slow and steady wins the race.", a:"", r:"英語のことわざ（イソップ寓話から）", c:"effort", ja:"ゆっくりでも着実な者が勝つ" },
+    { t:"The man who moves a mountain begins by carrying away small stones.", a:"", r:"ことわざ", c:"effort", ja:"山を動かす人は、小さな石を運ぶことから始める" },
+    { t:"Small steps every day.", a:"", r:"", c:"effort", ja:"毎日、小さな一歩を" },
+    { t:"One more rep. One more page. One more step.", a:"", r:"", c:"effort", ja:"あと1回。あと1ページ。あと一歩。" },
+    // 挑戦・勇気
+    { t:"Fortune favors the bold.", a:"", r:"ラテン語のことわざ", c:"courage", ja:"幸運は、勇気ある者に味方する" },
+    { t:"Do. Or do not. There is no try.", a:"Yoda", r:"映画『スター・ウォーズ 帝国の逆襲』", c:"courage", ja:"やるか、やらないかだ。「ためしに」はない" },
+    { t:"The only thing we have to fear is fear itself.", a:"Franklin D. Roosevelt", r:"第32代アメリカ大統領", c:"courage", ja:"私たちが恐れるべきものは、恐れそのものだけだ" },
+    { t:"You miss 100% of the shots you don't take.", a:"Wayne Gretzky", r:"アイスホッケー選手", c:"courage", ja:"打たなかったシュートは、100%外れる" },
+    { t:"Where there's a will, there's a way.", a:"", r:"英語のことわざ", c:"courage", ja:"意志あるところに道はある" },
+    { t:"Be stronger than your excuses.", a:"", r:"", c:"courage", ja:"言い訳よりも、強くあれ" },
+    // 学び・知恵
+    { t:"Know thyself.", a:"", r:"古代ギリシャ・デルポイの神殿の格言", c:"wisdom", ja:"汝自身を知れ" },
+    { t:"I think, therefore I am.", a:"René Descartes", r:"フランスの哲学者", c:"wisdom", ja:"我思う、ゆえに我あり" },
+    { t:"The unexamined life is not worth living.", a:"Socrates", r:"古代ギリシャの哲学者", c:"wisdom", ja:"吟味されない人生は、生きるに値しない" },
+    { t:"Imagination is more important than knowledge.", a:"Albert Einstein", r:"物理学者", c:"wisdom", ja:"想像力は、知識よりも大切だ" },
+    { t:"Knowledge is power.", a:"Francis Bacon", r:"イギリスの哲学者", c:"wisdom", ja:"知は力なり" },
+    { t:"Stay hungry. Stay foolish.", a:"Whole Earth Catalog", r:"1974年の最終号の言葉。スティーブ・ジョブズが2005年のスピーチで引用", c:"wisdom", ja:"ハングリーであれ。愚かであれ" },
+    { t:"The more that you read, the more things you will know.", a:"Dr. Seuss", r:"アメリカの絵本作家", c:"wisdom", ja:"読めば読むほど、知ることが増えていく" },
+    { t:"Stay curious. Keep going.", a:"", r:"", c:"wisdom", ja:"好奇心を持ち続けて、進み続けよう" },
+    // 生き方・人生
+    { t:"To be, or not to be, that is the question.", a:"William Shakespeare", r:"イギリスの劇作家『ハムレット』", c:"life", ja:"生きるべきか、死ぬべきか、それが問題だ" },
+    { t:"Carpe diem.", a:"Horace", r:"古代ローマの詩人", c:"life", ja:"今日という日を摘め（今を生きよ）" },
+    { t:"Hope is a good thing, maybe the best of things.", a:"", r:"映画『ショーシャンクの空に』", c:"life", ja:"希望はいいものだ。たぶん、何よりもいいものだ" },
+    { t:"Not all those who wander are lost.", a:"J.R.R. Tolkien", r:"イギリスの作家『指輪物語』", c:"life", ja:"さまよう者が、みな迷っているわけではない" },
+    { t:"In three words I can sum up everything I've learned about life: it goes on.", a:"Robert Frost", r:"アメリカの詩人", c:"life", ja:"人生について学んだことは、3語で言える。「それでも続いていく」" },
+    { t:"The best time to plant a tree was twenty years ago. The second best time is now.", a:"", r:"ことわざ", c:"life", ja:"木を植えるいちばんの時期は20年前だった。次にいい時期は、いまだ" },
+    // 心・メンタル
+    { t:"What does not kill me makes me stronger.", a:"Friedrich Nietzsche", r:"ドイツの哲学者", c:"mind", ja:"私を殺さないものは、私をより強くする" },
+    { t:"The mind is its own place, and in itself can make a heaven of hell, a hell of heaven.", a:"John Milton", r:"イギリスの詩人『失楽園』", c:"mind", ja:"心はそれ自体がひとつの世界。地獄を天国に、天国を地獄に変えられる" },
+    { t:"Keep calm and carry on.", a:"", r:"第二次世界大戦中のイギリス政府のポスター", c:"mind", ja:"落ち着いて、いつもどおりに" },
+    { t:"This too shall pass.", a:"", r:"古くからの格言", c:"mind", ja:"これもまた、過ぎ去る" },
+    { t:"Progress, not perfection.", a:"", r:"", c:"mind", ja:"完璧より、前進を" },
+    { t:"Focus on what you can control.", a:"", r:"", c:"mind", ja:"自分で変えられることに集中しよう" },
+    // 仕事・成功
+    { t:"The only way to do great work is to love what you do.", a:"Steve Jobs", r:"アップル共同創業者", c:"work", ja:"すばらしい仕事をする唯一の方法は、自分のしていることを愛すること" },
+    { t:"Well done is better than well said.", a:"Benjamin Franklin", r:"アメリカ建国の父のひとり", c:"work", ja:"うまく言うより、うまくやるほうがいい" },
+    { t:"Time is money.", a:"Benjamin Franklin", r:"アメリカ建国の父のひとり", c:"work", ja:"時は金なり" },
+    { t:"Actions speak louder than words.", a:"", r:"英語のことわざ", c:"work", ja:"行動は、言葉よりも雄弁だ" },
+    { t:"Done is better than perfect.", a:"", r:"", c:"work", ja:"完璧を目指すより、まず終わらせよう" },
+    { t:"Your future is created by what you do today.", a:"", r:"", c:"work", ja:"未来は、今日の行動がつくる" },
+    { t:"Discipline is choosing what you want most over what you want now.", a:"", r:"", c:"work", ja:"自制とは「いま欲しいもの」より「いちばん欲しいもの」を選ぶこと" },
+    // 仲間・人
+    { t:"If you want to go fast, go alone. If you want to go far, go together.", a:"", r:"ことわざ", c:"people", ja:"早く行きたいなら、ひとりで行け。遠くへ行きたいなら、みんなで行け" },
+    { t:"No man is an island.", a:"John Donne", r:"イギリスの詩人", c:"people", ja:"人は誰も、ひとりきりの島ではない" },
+    { t:"Alone we can do so little; together we can do so much.", a:"Helen Keller", r:"アメリカの教育者・社会福祉活動家", c:"people", ja:"ひとりでできることはわずか。力を合わせれば、多くのことができる" },
+    { t:"A friend in need is a friend indeed.", a:"", r:"英語のことわざ", c:"people", ja:"困ったときの友こそ、本当の友" },
+    // からだ・健康
+    { t:"An apple a day keeps the doctor away.", a:"", r:"英語のことわざ", c:"body", ja:"1日1個のりんごで、医者いらず" },
+    { t:"Early to bed and early to rise makes a man healthy, wealthy, and wise.", a:"Benjamin Franklin", r:"アメリカ建国の父のひとり", c:"body", ja:"早寝早起きは、人を健康に、豊かに、賢くする" },
+    { t:"A sound mind in a sound body.", a:"Juvenal", r:"古代ローマの詩人。『風刺詩』の一節から", c:"body", ja:"健全な身体に、健全な精神を" }
   ]
 };
 
@@ -524,7 +595,7 @@ const $ = id => document.getElementById(id);
    設定（localStorage。読めない端末でも既定値で動く）
    ========================================================= */
 const DEFAULTS = {
-  lang:"mix", meaning:true, change:true, showAuthor:true,
+  lang:"mix", cats:[], meaning:true, change:true, showAuthor:true,
   min:8, max:72, shrink:6, hold:1, ret:"smooth",
   motion: matchMedia("(prefers-reduced-motion: reduce)").matches ? "still" : "move",
   speed:120, dir:"8", turn:2.5, font:"round", stageColor:"night",
@@ -535,6 +606,7 @@ window.S = { ...DEFAULTS };
 try{ const saved = JSON.parse(localStorage.getItem(KEY) || "null"); if(saved) window.S = { ...DEFAULTS, ...saved }; }catch(e){}
 const S = window.S;
 if(S.font === "gothic") S.font = "round";
+if(!Array.isArray(S.cats)) S.cats = [];
 if(S.stageColor === "theme") S.stageColor = "night";
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 
@@ -717,23 +789,31 @@ function stopSpeak(){ try{ window.speechSynthesis && window.speechSynthesis.canc
 
 /* =========================================================
    いま出している言葉
-   { text, author, lang, ja(英語の意味), isMeaning, src }
+   { text, author, role(肩書), lang, ja(英語の意味), isMeaning, src }
    ========================================================= */
 const stage = $("stage"), target = $("target"), quoteEl = $("quote"), authorEl = $("author");
 window.cur = null;
 let lastPick = "";
 
-function pickNew(){
-  const pool = S.lang === "mix"
-    ? [...QUOTES.ja.map(q => ["ja", q]), ...QUOTES.en.map(q => ["en", q])]
-    : QUOTES[S.lang].map(q => [S.lang, q]);
-  let item;
-  do{ item = pool[Math.floor(Math.random() * pool.length)]; }while(pool.length > 1 && item[1][0] === lastPick);
-  lastPick = item[1][0];
-  const [lang, q] = item;
-  show({ text:q[0], author:q[1] || "", lang, ja:q[2] || "", isMeaning:false });
+/* 言語とカテゴリで絞った候補。カテゴリを1つも選んでいなければ全部 */
+function quotePool(){
+  const langs = S.lang === "mix" ? ["ja", "en"] : [S.lang];
+  const pool = [];
+  langs.forEach(l => QUOTES[l].forEach(q => {
+    if(!S.cats.length || S.cats.includes(q.c)) pool.push({ lang:l, q });
+  }));
+  return pool;
 }
-function meaningOf(c){ return { text:c.ja, author:c.author, lang:"ja", ja:"", isMeaning:true, src:c }; }
+function pickNew(){
+  let pool = quotePool();
+  if(!pool.length){ S.cats = []; pool = quotePool(); }   // 選んだカテゴリにその言語が無いとき
+  let item;
+  do{ item = pool[Math.floor(Math.random() * pool.length)]; }while(pool.length > 1 && item.q.t === lastPick);
+  lastPick = item.q.t;
+  const q = item.q;
+  show({ text:q.t, author:q.a || "", role:q.r || "", lang:item.lang, ja:q.ja || "", isMeaning:false });
+}
+function meaningOf(c){ return { text:c.ja, author:c.author, role:c.role, lang:"ja", ja:"", isMeaning:true, src:c }; }
 
 /* 1回縮み終わったときに、次に何を出すか */
 function nextItem(){
@@ -742,9 +822,13 @@ function nextItem(){
   if(S.meaning && c.lang === "en" && c.ja){ show(meaningOf(c)); return; }
   if(S.change) pickNew();
 }
+function whoText(c){
+  if(c.author && c.role) return c.author + "（" + c.role + "）";
+  return c.author || c.role || "";
+}
 function authorText(c){
-  const who = S.showAuthor && c.author ? c.author : "";
-  if(c.isMeaning) return "日本語の意味" + (who ? "（" + who + "）" : "");
+  const who = S.showAuthor ? whoText(c) : "";
+  if(c.isMeaning) return "日本語の意味" + (who ? " ・ " + who : "");
   return who ? "— " + who : "";
 }
 function show(c){
@@ -799,16 +883,56 @@ function measureStage(){
   relayout();
 }
 const rand = (a, b) => a + Math.random() * (b - a);
+/* 🔴 画面全体を回らせる（2026-09-26 宮崎さん「決まった方向にしか動き回らない気がする」）。
+   ランダムに向きを変えて壁で跳ね返すだけだと、同じ斜めの線を往復しやすく、
+   大きい文字は横に動ける幅が狭いので上下ばかりに見える。
+   → 動ける範囲を3×3に区切って滞在時間を数え、〈あまり行っていない区画〉を目的地にして向かう。
+     8方向のときは、目的地への向きをいちばん近い45°に丸める */
+const visits = new Array(9).fill(0);
+let tx = 0, ty = 0;
+function bounds(){
+  const hw = Math.min(target.offsetWidth / 2, W / 2), hh = Math.min(target.offsetHeight / 2, H / 2);
+  return { x0:hw, x1:W - hw, y0:hh, y1:H - hh };
+}
+function cellOf(x, y, b){
+  const fx = b.x1 > b.x0 ? (x - b.x0) / (b.x1 - b.x0) : .5, fy = b.y1 > b.y0 ? (y - b.y0) / (b.y1 - b.y0) : .5;
+  return Math.min(2, Math.max(0, Math.floor(fx * 3))) + 3 * Math.min(2, Math.max(0, Math.floor(fy * 3)));
+}
+const dirUse = new Array(8).fill(0);
 function newDirection(){
-  let ang;
-  if(S.dir === "8"){
-    let i; do{ i = Math.floor(Math.random() * 8); }while(i === dirIndex);
-    dirIndex = i; ang = i * Math.PI / 4;
-  }else{
-    ang = Math.random() * Math.PI * 2;
+  const b = bounds();
+  const N = S.dir === "8" ? 8 : 16;
+  const vmax = Math.max(1e-6, ...visits), umax = Math.max(1e-6, ...dirUse);
+  let best = null, far = null;
+  for(let k = 0; k < N; k++){
+    const ang = S.dir === "8" ? k * Math.PI / 4 : (k + rand(-.5, .5)) * 2 * Math.PI / N;
+    const dx = Math.cos(ang), dy = Math.sin(ang);
+    // この向きに、壁までどこまで行けるか
+    let dmax = Infinity;
+    if(dx > 1e-6) dmax = Math.min(dmax, (b.x1 - cx) / dx);
+    if(dx < -1e-6) dmax = Math.min(dmax, (b.x0 - cx) / dx);
+    if(dy > 1e-6) dmax = Math.min(dmax, (b.y1 - cy) / dy);
+    if(dy < -1e-6) dmax = Math.min(dmax, (b.y0 - cy) / dy);
+    if(!isFinite(dmax)) dmax = 0;
+    const bin = ((Math.round(ang / (Math.PI / 4)) % 8) + 8) % 8;
+    const cand = { ang, dx, dy, bin, dist: dmax * rand(.55, 1) };
+    if(!far || dmax > far.dmax) far = { ...cand, dist: dmax, dmax };
+    if(dmax < 30 || (S.dir === "8" && bin === dirIndex)) continue;
+    const ex = cx + dx * cand.dist, ey = cy + dy * cand.dist;
+    // 低いほど選ばれる：着く場所にあまり行っていない＋最近その向きを使っていない
+    cand.score = visits[cellOf(ex, ey, b)] / vmax + 0.8 * dirUse[bin] / umax + rand(0, .35);
+    if(!best || cand.score < best.score) best = cand;
   }
-  vx = Math.cos(ang); vy = Math.sin(ang);
-  nextTurn = total + rand(S.turn * 0.5, S.turn * 1.5);
+  const c = best || far;             // どこにも30px動けないとき（隅に詰まったとき）は、いちばん開いている向き
+  if(!c) return;
+  for(let i = 0; i < 8; i++) dirUse[i] *= 0.9;   // 古い向きは少しずつ忘れる
+  dirUse[c.bin] += 1;
+  dirIndex = c.bin;
+  vx = c.dx; vy = c.dy;
+  tx = cx + c.dx * c.dist; ty = cy + c.dy * c.dist;
+  // 行き先に着くまでは向きを変えない（途中で選び直すと、端まで届かず真ん中に寄る）
+  const travel = c.dist / Math.max(1, S.speed);
+  nextTurn = total + Math.max(travel, rand(S.turn * 0.5, S.turn * 1.5));
 }
 const ease = x => (1 - Math.cos(Math.PI * x)) / 2;
 
@@ -843,15 +967,22 @@ function frame(now){
   const w = target.offsetWidth, h = target.offsetHeight, hw = w / 2, hh = h / 2;
   if(S.motion === "move"){
     if(window.running){
-      if(total >= nextTurn) newDirection();
+      const near = Math.hypot(tx - cx, ty - cy) < Math.max(24, S.speed * 0.15);
+      if(total >= nextTurn || near) newDirection();
       cx += vx * S.speed * dt; cy += vy * S.speed * dt;
+      const b = bounds(), c = cellOf(cx, cy, b);
+      for(let i = 0; i < 9; i++) visits[i] *= 0.9995;     // 古い滞在は少しずつ忘れる
+      visits[c] += dt;
     }
+    // 壁に当たったら、跳ね返すのではなく次の目的地を選び直す（同じ線の往復を避ける）
+    let hit = false;
     if(w >= W) cx = W / 2;
-    else if(cx - hw < 0){ cx = hw; vx = Math.abs(vx); }
-    else if(cx + hw > W){ cx = W - hw; vx = -Math.abs(vx); }
+    else if(cx - hw < 0){ cx = hw; hit = vx < 0; }
+    else if(cx + hw > W){ cx = W - hw; hit = vx > 0; }
     if(h >= H) cy = H / 2;
-    else if(cy - hh < 0){ cy = hh; vy = Math.abs(vy); }
-    else if(cy + hh > H){ cy = H - hh; vy = -Math.abs(vy); }
+    else if(cy - hh < 0){ cy = hh; hit = hit || vy < 0; }
+    else if(cy + hh > H){ cy = H - hh; hit = hit || vy > 0; }
+    if(hit && window.running) newDirection();
   }else{
     cx = W / 2; cy = H / 2;
   }
@@ -975,6 +1106,25 @@ const outputs = {
   min:v => v + " px", max:v => v + " px", shrink:v => v + " 秒",
   hold:v => v + " 秒", speed:v => v + " px/秒", turn:v => "約 " + v + " 秒"
 };
+function catRender(){
+  const box = $("catChips"); box.innerHTML = "";
+  const make = (id, label, on) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip cat"; b.textContent = label;
+    b.setAttribute("aria-pressed", on ? "true" : "false");
+    b.addEventListener("click", () => {
+      if(id === "") S.cats = [];
+      else S.cats = S.cats.includes(id) ? S.cats.filter(x => x !== id) : [...S.cats, id];
+      save(); catRender(); pickNew(); t = 0;
+    });
+    box.appendChild(b);
+  };
+  make("", "すべて", !S.cats.length);
+  CATEGORIES.forEach(c => {
+    const n = (S.lang === "mix" ? [...QUOTES.ja, ...QUOTES.en] : QUOTES[S.lang]).filter(q => q.c === c.id).length;
+    make(c.id, c.label + " " + n, S.cats.includes(c.id));
+  });
+}
 function syncForm(){
   for(const k of Object.keys(outputs)){ $(k).value = S[k]; $(k + "Out").textContent = outputs[k](S[k]); }
   for(const name of ["lang", "ret", "motion", "dir", "font", "stageColor"]){
@@ -1009,7 +1159,7 @@ $("form").addEventListener("input", e => {
     needLayout = el.id === "max" || el.id === "min";
   }else if(el.type === "radio"){
     S[el.name] = el.value;
-    if(el.name === "lang"){ pickNew(); t = 0; }
+    if(el.name === "lang"){ pickNew(); t = 0; catRender(); }
     if(el.name === "dir") newDirection();
     needLayout = el.name === "font";
   }else if(el.type === "checkbox"){
@@ -1043,6 +1193,7 @@ $("tapStart").addEventListener("click", () => {
    起動
    ========================================================= */
 syncForm();
+catRender();
 bgmRender();
 new ResizeObserver(measureStage).observe(stage);
 pickNew();
