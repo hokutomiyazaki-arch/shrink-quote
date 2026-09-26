@@ -230,6 +230,16 @@
   .keys{ display:grid; grid-template-columns:auto 1fr; gap:6px 10px; font-size:12.5px; color:var(--muted); font-weight:500; }
   .keys kbd{ font-family:var(--mono); background:var(--card); border:1px solid var(--line); border-radius:5px;
     padding:0 7px; color:var(--ink); text-align:center; }
+  .side .why{ margin-top:10px; border:1px solid var(--line); border-radius:14px; background:var(--card); }
+  .side .why summary{ cursor:pointer; padding:12px 14px; font-size:14px; font-weight:800; color:var(--accent); list-style:none; }
+  .side .why summary::-webkit-details-marker{ display:none; }
+  .side .why summary::after{ content:"＋"; float:right; color:var(--muted); }
+  .side .why[open] summary::after{ content:"－"; }
+  .side .whybox{ padding:0 14px 14px; font-size:13px; color:var(--ink); line-height:1.95; font-weight:500; display:flex; flex-direction:column; gap:10px; }
+  .side .whybox sup{ color:var(--accent); font-size:10px; }
+  .side .whybox .note{ color:var(--muted); }
+  .side .whybox .refs{ padding-left:18px; font-size:11px; color:var(--muted); line-height:1.7; }
+  .side .whybox .refs a{ word-break:break-all; }
   .side .guide{ font-size:13px; color:var(--muted); line-height:1.9; font-weight:500; }
   .side .guide ol{ padding-left:20px; }
   .side .med{ font-size:12px; color:var(--muted); line-height:1.8; font-weight:500; }
@@ -262,6 +272,7 @@
     <span class="note">🔊 縮むと高く、大きくなると低くなる音が鳴ります</span>
     <button class="muteToggle" id="muteToggle" type="button" aria-pressed="false">🔊 音オン</button>
   </div>
+  <button class="muteToggle" id="whyOpen" type="button" style="margin-top:14px;">なぜ効くの？</button>
   <div class="copy">© Functional Neuro Training / Legrandchariot</div>
 </div>
 
@@ -309,6 +320,21 @@
 <div class="overlay" id="overlay"></div>
 <nav class="side scroll" id="side" aria-label="メニュー" aria-hidden="true">
   <div class="top"><b>メニュー</b><button class="closeBtn" id="closeMenu" type="button" aria-label="メニューを閉じる">×</button></div>
+
+  <details class="why" id="why">
+    <summary>なぜ効くの？（神経科学）</summary>
+    <div class="whybox">
+      <p>小さな文字を読むとき、私たちは網膜のまん中にある「中心窩（ちゅうしんか）」で文字をとらえています。中心窩は光を感じる細胞（錐体）がもっとも密に並び、脳の視覚野でも広い面積が割り当てられている、細かい形を見分けるための場所です<sup>[3]</sup>。</p>
+      <p>大人の脳にも、見分けにくい細かいものを見分ける練習をくり返すと、その処理が上達する性質があります。これを「知覚学習」と呼びます<sup>[2]</sup>。老眼が始まった50歳前後の人を対象にした研究では、約3か月の訓練のあと、近くの小さな文字の見分けと、小さな文字を読む速さが上がりました。このとき、目のピントを合わせる力は変わっていませんでした。変わったのは目のレンズではなく、脳の処理だと考えられています<sup>[1]</sup>。</p>
+      <p>「縮む名言」は、読めるぎりぎりに近い大きさまで文字を縮め、動き回る文字を最後まで目で追って読むことで、この「細かい形を見分ける処理」を使い続けるように作っています。練習の効果は、課題によっては練習した目や視野の場所に限られるという報告もあります<sup>[2]</sup>。そのため片目プログラムでは、右目・左目それぞれで行います。</p>
+      <p class="note">ただし、研究で使われたのは縞模様などを使う専用の課題で、1回30分ほどを何十回もくり返すものでした。このアプリそのものを使った研究はまだありません。効果には個人差があり、視力の回復や老眼の改善を約束するものではありません。</p>
+      <ol class="refs">
+        <li>Polat U, et al. Training the brain to overcome the effect of aging on the human eye. <i>Sci Rep</i>. 2012;2:278. <a href="https://doi.org/10.1038/srep00278" target="_blank" rel="noopener">doi:10.1038/srep00278</a></li>
+        <li>Karni A, Sagi D. Where practice makes perfect in texture discrimination: evidence for primary visual cortex plasticity. <i>Proc Natl Acad Sci U S A</i>. 1991;88(11):4966-70. <a href="https://doi.org/10.1073/pnas.88.11.4966" target="_blank" rel="noopener">doi:10.1073/pnas.88.11.4966</a></li>
+        <li>Woertz EN, et al. The relationship between retinal cone density and cortical magnification in human albinism. <i>J Vis</i>. 2020;20(6):10. <a href="https://doi.org/10.1167/jov.20.6.10" target="_blank" rel="noopener">doi:10.1167/jov.20.6.10</a></li>
+      </ol>
+    </div>
+  </details>
 
   <form id="form" autocomplete="off">
     <h4>モード</h4>
@@ -1376,6 +1402,11 @@ $("minChips").addEventListener("click", e => {
    スプラッシュ：タップで開始（このタップで音を有効にする）
    ========================================================= */
 $("muteToggle").addEventListener("click", e => { e.stopPropagation(); setMuted(!window.muted); });
+/* スプラッシュの「なぜ効くの？」：本体へ進んで、メニューの説明を開く */
+$("whyOpen").addEventListener("click", () => {
+  $("tapStart").click();
+  $("why").open = true; openMenu();
+});
 $("tapStart").addEventListener("click", () => {
   unlockAudio();
   voiceUnlock();
