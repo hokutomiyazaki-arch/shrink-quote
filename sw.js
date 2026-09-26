@@ -1,5 +1,5 @@
 /* 縮む名言 ─ オフラインでも使えるようにする */
-var CACHE = 'shrink-quote-v1';
+var CACHE = 'shrink-quote-v2';
 var ASSETS = ['./', './index.html', './manifest.json',
               './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'];
 self.addEventListener('install', function (e) {
