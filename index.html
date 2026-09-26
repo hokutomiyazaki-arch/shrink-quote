@@ -348,13 +348,7 @@
         <label><input type="radio" name="mode" id="mode-free" value="free"><span>フリー</span></label>
         <label><input type="radio" name="mode" id="mode-program" value="program"><span>片目プログラム</span></label>
       </div>
-      <div class="field">
-        <span class="label">順番</span>
-        <div class="seg" role="radiogroup" aria-label="順番">
-          <label><input type="radio" name="prog" id="prog-std" value="std"><span>両→右→左→両</span></label>
-          <label><input type="radio" name="prog" id="prog-rl" value="rl"><span>右→左</span></label>
-        </div>
-      </div>
+      <p class="hint">両目 → 右目 → 左目 → 両目 の順に行います。</p>
       <div class="field">
         <div class="field-top"><label for="phaseSec">1回の時間</label><output id="phaseSecOut" for="phaseSec">1分</output></div>
         <input type="range" id="phaseSec" min="15" max="180" step="15">
@@ -699,7 +693,7 @@ const $ = id => document.getElementById(id);
    設定（localStorage。読めない端末でも既定値で動く）
    ========================================================= */
 const DEFAULTS = {
-  mode:"free", prog:"std", phaseSec:60, prepSec:5,
+  mode:"free", phaseSec:60, prepSec:5,
   fade:false, minContrast:30,
   lang:"mix", cats:[], meaning:true, change:true, showAuthor:true,
   min:8, max:72, shrink:6, hold:1, ret:"smooth",
@@ -1136,9 +1130,10 @@ document.addEventListener("visibilitychange", () => {
    段が終わったら「そこまで」を出す。案内のあいだは言葉を止めておく。
    声は ElevenLabs（リョウ・eleven_v3）で作った assets/voice/*.mp3（tools/make_voice.py）
    ========================================================= */
-const PROGS = { std:["both", "right", "left", "both"], rl:["right", "left"] };
+// 🔴 順番は固定（宮崎さん「順番メニューはいらない。必ず俺が言った順番で」）
+const PROGS = { std:["both", "right", "left", "both"] };
 const EYE = {
-  both:  { title:"両目で見る",  sub:"手はおろしたまま",          L:"open",  R:"open"  },
+  both:  { title:"両目で見る",  sub:"",                          L:"open",  R:"open"  },
   right: { title:"右目で見る",  sub:"左目を手で隠してください",   L:"cover", R:"open"  },
   left:  { title:"左目で見る",  sub:"右目を手で隠してください",   L:"open",  R:"cover" }
 };
@@ -1168,7 +1163,7 @@ function playVoice(id){
 function voicePlaying(){ const v = window.voiceEl; return !!(v && !v.paused && !v.ended); }
 
 function progShow(kind, phase){
-  const card = $("progCard"), list = PROGS[S.prog] || PROGS.std;
+  const card = $("progCard"), list = PROGS.std;
   card.hidden = false;
   $("pcClose").hidden = kind !== "finish";
   $("pcEyes").hidden = kind === "finish" || kind === "intro";
@@ -1197,7 +1192,7 @@ function progStart(){
   progShow("intro"); playVoice("intro");
 }
 function progEnter(stage){
-  const list = PROGS[S.prog] || PROGS.std, phase = list[prog.idx];
+  const list = PROGS.std, phase = list[prog.idx];
   prog.stage = stage;
   if(stage === "prep"){
     prog.left = VOICE_SEC[phase] + S.prepSec;
@@ -1218,7 +1213,7 @@ function progEnter(stage){
 function progTick(dt){
   if(!prog.on) return;
   prog.left -= dt;
-  const list = PROGS[S.prog] || PROGS.std;
+  const list = PROGS.std;
   if(prog.stage === "prep") $("pcCount").textContent = Math.max(1, Math.ceil(prog.left));
   else $("pcCount").textContent = "";
   if(prog.stage !== "run") $("hudProg").hidden = true;
@@ -1367,7 +1362,7 @@ function catRender(){
 }
 function syncForm(){
   for(const k of Object.keys(outputs)){ $(k).value = S[k]; $(k + "Out").textContent = outputs[k](S[k]); }
-  for(const name of ["mode", "prog", "lang", "ret", "motion", "dir", "font", "stageColor"]){
+  for(const name of ["mode", "lang", "ret", "motion", "dir", "font", "stageColor"]){
     const el = document.querySelector('input[name="' + name + '"][value="' + S[name] + '"]');
     if(el) el.checked = true;
   }
@@ -1402,7 +1397,7 @@ $("form").addEventListener("input", e => {
   }else if(el.type === "radio"){
     S[el.name] = el.value;
     if(el.name === "lang"){ pickNew(); t = 0; catRender(); }
-    if(el.name === "mode" || el.name === "prog") progReset();
+    if(el.name === "mode") progReset();
     if(el.name === "dir") newDirection();
     needLayout = el.name === "font";
   }else if(el.type === "checkbox"){

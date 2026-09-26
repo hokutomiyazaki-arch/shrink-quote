@@ -3,7 +3,7 @@
 //       オフライン時のみキャッシュへフォールバック。
 // index.html 側で controllerchange を検知して location.reload() する前提。
 // 🔴 デプロイのたびに CACHE_NAME の番号を上げる
-const CACHE_NAME = 'shrink-quote-v1.5.1';
+const CACHE_NAME = 'shrink-quote-v1.5.2';
 
 const ASSETS_TO_CACHE = [
   './',
