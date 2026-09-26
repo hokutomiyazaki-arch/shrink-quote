@@ -10,3 +10,5 @@
 ## やったこと
 - 2026-09-26 FNT標準の骨格に作り直し（スプラッシュ・サイドメニュー・SW Network First）。英語→日本語の意味モード、ピューン音、BGM、読み上げを追加
 - 2026-09-26 新規作成・GitHub Pages で公開（public）。先に claude.ai のアーティファクトで作った版（非公開）が元
+- 2026-09-26 FNTアプリストア（`FNT-applications`）の評価・トレーニング枠に追加（24.png） / https://hokutomiyazaki-arch.github.io/FNT-applications/
+- 2026-09-26 コミュニティのコース#26「オリジナルアプリ」に追加（セクション#1056／レッスン#1057・入会420日目に開く）。記録は `fnt-neuro-community/WORKLOG.md`
