@@ -1,11 +1,16 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>縮む名言 ─ 視覚トレーニング</title>
-<meta name="description" content="名言が最小サイズまで縮んでは戻り、画面の中を上下左右・斜めに動き回る視覚トレーニング。最小サイズ・速さ・動きを選べます。">
-<meta name="theme-color" content="#0D1119">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0b0f18" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="縮む名言" />
+<meta name="description" content="名言が最小サイズまで縮んでは戻り、画面の中を上下左右・斜めに動き回る視覚トレーニング。最小サイズ・速さ・動きを選べます。Functional Neuro Training。" />
+<title>縮む名言 ─ 視覚トレーニング / Functional Neuro Training</title>
+
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hokutomiyazaki-arch.github.io/shrink-quote/">
 <meta property="og:title" content="縮む名言 ─ 視覚トレーニング">
@@ -15,606 +20,1051 @@
 <meta property="og:image:height" content="675">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://hokutomiyazaki-arch.github.io/shrink-quote/og.jpg">
-<link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./icons/icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap" rel="stylesheet" />
+
 <style>
-:root{
-  --bg:#E9EDF3;
-  --surface:#FFFFFF;
-  --surface-2:#F4F6FA;
-  --ink:#141A24;
-  --muted:#5A6476;
-  --line:#D3DAE5;
-  --accent:#2E47D1;
-  --accent-soft:#E3E8FF;
-  --accent-ink:#FFFFFF;
-  --stage-bg:var(--surface);
-  --stage-ink:var(--ink);
-  --stage-sub:var(--muted);
-  --ui:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",system-ui,sans-serif;
-  --mincho:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;
-  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
+  /* ===== 配色：ユニバーサルデザイン（高コントラスト・FNT共通の暗い地） ===== */
+  :root{
+    --bg0:#0b0f18; --bg1:#121a2a; --bg2:#1b2644;
+    --accent:#9fb0ff; --accent2:#6f86f0; --accentInk:#0b1024;
+    --ink:#f1f4fb; --muted:#a9b3c9; --line:rgba(255,255,255,.13);
+    --card:rgba(255,255,255,.07); --danger:#ffb4a8;
+    --round:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Hiragino Sans",system-ui,sans-serif;
+    --mincho:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
     color-scheme:dark;
-    --bg:#0D1119;
-    --surface:#151B26;
-    --surface-2:#1B2230;
-    --ink:#E6EAF2;
-    --muted:#98A2B4;
-    --line:#2A3344;
-    --accent:#8FA1FF;
-    --accent-soft:#232C4A;
-    --accent-ink:#0D1119;
   }
-}
-:root[data-theme="dark"]{
-  color-scheme:dark;
-  --bg:#0D1119;
-  --surface:#151B26;
-  --surface-2:#1B2230;
-  --ink:#E6EAF2;
-  --muted:#98A2B4;
-  --line:#2A3344;
-  --accent:#8FA1FF;
-  --accent-soft:#232C4A;
-  --accent-ink:#0D1119;
-}
-html,body{height:100%}
-[hidden]{display:none!important}
-body{
-  margin:0;overscroll-behavior:none;-webkit-font-smoothing:antialiased;
-  background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:14px;
-  overflow:hidden;
-}
-*{box-sizing:border-box}
-button,input{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-
-.app{
-  height:100%;display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;
-  padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));
-}
-.app.panel-closed{grid-template-columns:minmax(0,1fr)}
-.app.panel-closed .panel{display:none}
-
-/* ---- stage ---- */
-.stage{
-  position:relative;overflow:hidden;border-radius:14px;
-  background:var(--stage-bg);color:var(--stage-ink);
-  border:1px solid var(--line);min-height:0;
-}
-.stage[data-stage="paper"]{--stage-bg:#FFFFFF;--stage-ink:#101010;--stage-sub:#6B6B6B}
-.stage[data-stage="night"]{--stage-bg:#07090D;--stage-ink:#F3F4F6;--stage-sub:#8C93A0}
-.stage[data-stage="kinari"]{--stage-bg:#F3EEDD;--stage-ink:#1E1B16;--stage-sub:#6E6656}
-.stage:fullscreen{border-radius:0;border:0}
-
-.target{
-  position:absolute;left:0;top:0;will-change:transform,font-size;
-  text-align:center;line-height:1.35;font-weight:500;
-  word-break:auto-phrase;line-break:strict;overflow-wrap:anywhere;
-  text-wrap:balance;
-}
-.target.mincho{font-family:var(--mincho);font-weight:500}
-.target .quote{margin:0}
-.target .author{margin:.5em 0 0;font-size:.42em;color:var(--stage-sub);letter-spacing:.04em;font-weight:400}
-
-.hud{
-  position:absolute;top:12px;left:12px;display:flex;gap:6px;flex-wrap:wrap;
-  font-family:var(--mono);font-size:12px;color:var(--stage-sub);
-  font-variant-numeric:tabular-nums;pointer-events:none;
-}
-.hud span{background:color-mix(in srgb,var(--stage-bg) 82%,transparent);padding:3px 8px;border-radius:6px;border:1px solid color-mix(in srgb,var(--stage-sub) 25%,transparent)}
-.hud b{color:var(--stage-ink);font-weight:500}
-
-.controls{
-  position:absolute;left:50%;bottom:14px;transform:translateX(-50%);
-  display:flex;gap:6px;padding:6px;border-radius:12px;
-  background:var(--surface);border:1px solid var(--line);color:var(--ink);
-  box-shadow:0 6px 24px rgb(0 0 0 / .12);max-width:calc(100% - 24px);flex-wrap:wrap;justify-content:center;
-  transition:opacity .3s;
-}
-.stage.idle .controls,.stage.idle .hud{opacity:0}
-.btn{
-  border:1px solid var(--line);background:var(--surface-2);border-radius:8px;
-  padding:8px 12px;cursor:pointer;white-space:nowrap;font-weight:500;
-}
-.btn:hover{border-color:var(--accent)}
-.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);min-width:96px}
-.btn kbd{font-family:var(--mono);font-size:10px;opacity:.6;margin-left:6px}
-
-/* ---- panel ---- */
-.panel{
-  background:var(--surface);border:1px solid var(--line);border-radius:14px;
-  overflow-y:auto;min-height:0;display:flex;flex-direction:column;
-}
-.panel-head{
-  display:flex;align-items:center;justify-content:space-between;gap:8px;
-  padding:16px 18px 10px;position:sticky;top:0;background:var(--surface);z-index:1;
-}
-.panel-head h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.02em}
-.panel-head p{margin:2px 0 0;color:var(--muted);font-size:12px}
-.close{display:none}
-.groups{display:flex;flex-direction:column;padding:0 18px 18px}
-.group{display:flex;flex-direction:column;gap:12px;padding:14px 0;border-top:1px solid var(--line)}
-.group h2{margin:0;font-size:11px;letter-spacing:.14em;color:var(--muted);font-weight:500}
-.field{display:flex;flex-direction:column;gap:6px}
-.field-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.field label,.field .label{font-weight:500}
-.field output{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums;color:var(--accent)}
-.hint{color:var(--muted);font-size:12px;margin:0;line-height:1.5}
-input[type=range]{width:100%;accent-color:var(--accent)}
-
-.seg{display:flex;border:1px solid var(--line);border-radius:9px;padding:3px;gap:3px;background:var(--surface-2)}
-.seg label{flex:1;position:relative;cursor:pointer}
-.seg input{position:absolute;opacity:0;inset:0;cursor:pointer}
-.seg span{display:block;text-align:center;padding:6px 4px;border-radius:6px;font-size:13px}
-.seg input:checked + span{background:var(--surface);color:var(--accent);font-weight:700;box-shadow:0 1px 3px rgb(0 0 0 / .12)}
-.seg input:focus-visible + span{outline:2px solid var(--accent)}
-
-.chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:3px 10px;font-family:var(--mono);font-size:12px;cursor:pointer}
-.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
-
-.check{display:flex;align-items:center;gap:8px;cursor:pointer}
-.check input{accent-color:var(--accent);width:16px;height:16px}
-
-.keys{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:12px;color:var(--muted)}
-.keys kbd{font-family:var(--mono);background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:0 6px;color:var(--ink);text-align:center}
-
-@media (max-width:760px){
-  .app,.app.panel-closed{grid-template-columns:minmax(0,1fr)}
-  .panel{
-    position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));
-    max-height:72%;z-index:5;box-shadow:0 -10px 40px rgb(0 0 0 / .25);
+  *{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  html,body{ overflow:hidden; max-width:100%; height:100%; }
+  body{
+    font-family:var(--round); font-weight:700; color:var(--ink); line-height:1.7;
+    background:var(--bg0); overscroll-behavior:none; -webkit-font-smoothing:antialiased;
+    touch-action:none;
   }
-  .app.panel-closed .panel{display:none}
-  .close{display:inline-block}
-  .btn kbd{display:none}
-}
-@media (prefers-reduced-motion: reduce){ .controls{transition:none} }
+  .scroll, .scroll *{ touch-action:auto !important; }
+  [hidden]{ display:none !important; }
+  button,input{ font-family:inherit; font-weight:700; color:inherit; }
+  button{ cursor:pointer; border:none; }
+  a{ color:var(--accent); }
+  :focus-visible{ outline:3px solid var(--accent); outline-offset:3px; border-radius:8px; }
+
+  /* ===== S0 スプラッシュ（起動時だけ／AudioContext unlock） ===== */
+  #splash{
+    position:fixed; inset:0; z-index:1000; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center; padding:32px;
+    background:radial-gradient(120% 90% at 50% 20%, var(--bg2) 0%, var(--bg1) 45%, var(--bg0) 100%);
+    transition:opacity .45s ease, visibility .45s ease;
+  }
+  #splash.hide{ opacity:0; visibility:hidden; pointer-events:none; }
+  #splash img{ width:132px; height:132px; margin-bottom:22px; border-radius:26px; }
+  #splash .fnt{ font-size:13px; letter-spacing:.24em; color:var(--muted); margin-bottom:14px; }
+  #splash h1{ font-size:30px; font-weight:800; color:var(--accent); margin-bottom:10px; }
+  #splash .lead{ font-size:14px; color:var(--muted); margin-bottom:26px; }
+  /* 縮んでは戻る言葉（アプリの動きの予告） */
+  #splash .demo{ height:56px; display:flex; align-items:center; justify-content:center; margin-bottom:22px; }
+  #splash .demo span{ font-size:34px; font-weight:800; color:var(--ink); animation:demo 3.2s ease-in-out infinite; }
+  @keyframes demo{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(.22); } }
+  #splash .tapstart{
+    min-height:52px; padding:14px 34px; border-radius:16px; font-size:17px; font-weight:800;
+    color:var(--accentInk); background:linear-gradient(180deg,var(--accent),var(--accent2));
+    animation:breathe 2.4s ease-in-out infinite;
+  }
+  #splash .copy{ position:absolute; bottom:calc(20px + env(safe-area-inset-bottom)); font-size:11px; color:var(--muted); }
+  @keyframes breathe{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.05); } }
+  #splash .audioNote{ display:flex; flex-direction:column; align-items:center; gap:10px; margin-top:22px; }
+  #splash .audioNote .note{ font-size:12px; color:var(--muted); }
+  .muteToggle{
+    min-height:40px; padding:8px 20px; border-radius:14px; font-size:13px; font-weight:700;
+    color:var(--accent); background:var(--card); border:1px solid var(--line);
+    display:inline-flex; align-items:center; gap:6px; transition:all .2s ease;
+  }
+  .muteToggle.off{ color:var(--muted); opacity:.85; }
+
+  /* ===== 本体：言葉が動く面（画面全面） ===== */
+  #stage{
+    position:fixed; inset:0; overflow:hidden;
+    background:var(--stage-bg); color:var(--stage-ink);
+    --stage-bg:#07090d; --stage-ink:#f3f4f6; --stage-sub:#8c93a0;
+  }
+  #stage[data-stage="paper"]{ --stage-bg:#ffffff; --stage-ink:#101010; --stage-sub:#6b6b6b; }
+  #stage[data-stage="kinari"]{ --stage-bg:#f3eedd; --stage-ink:#1e1b16; --stage-sub:#6e6656; }
+
+  .target{
+    position:absolute; left:0; top:0; text-align:center; line-height:1.35; font-weight:700;
+    word-break:auto-phrase; line-break:strict; overflow-wrap:anywhere; text-wrap:balance;
+    font-family:var(--round);
+  }
+  .target.mincho{ font-family:var(--mincho); font-weight:600; }
+  .target p{ margin:0; }
+  /* 🔴 最大サイズで決まった改行を、縮んでも保つ。1行ずつ折り返し禁止で並べる */
+  .target .ln{ display:block; white-space:nowrap; }
+  .target .author{ margin-top:.5em; font-size:.42em; color:var(--stage-sub); letter-spacing:.04em; font-weight:500; }
+
+  header{
+    position:fixed; left:0; right:0; top:0; z-index:20; display:flex; align-items:center; justify-content:space-between;
+    padding:calc(10px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) 6px calc(14px + env(safe-area-inset-left));
+    pointer-events:none; transition:opacity .3s;
+  }
+  header > *{ pointer-events:auto; }
+  .logo{ display:flex; align-items:center; gap:10px; padding:4px 12px 4px 4px; border-radius:14px; background:rgba(11,15,24,.72); }
+  .logo img{ width:34px; height:34px; }
+  .logo b{ font-size:15px; font-weight:800; letter-spacing:.02em; color:var(--ink); }
+  .menuBtn{ width:46px; height:46px; border-radius:12px; background:rgba(11,15,24,.72); color:var(--ink);
+    font-size:22px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line); }
+
+  .hud{
+    position:fixed; z-index:15; left:calc(14px + env(safe-area-inset-left)); top:calc(66px + env(safe-area-inset-top));
+    display:flex; gap:6px; flex-wrap:wrap; font-family:var(--mono); font-size:12px; font-weight:500;
+    color:var(--stage-sub); font-variant-numeric:tabular-nums; pointer-events:none; transition:opacity .3s;
+  }
+  .hud span{ padding:3px 8px; border-radius:6px; border:1px solid color-mix(in srgb, var(--stage-sub) 30%, transparent);
+    background:color-mix(in srgb, var(--stage-bg) 80%, transparent); }
+  .hud b{ color:var(--stage-ink); font-weight:600; }
+
+  .controls{
+    position:fixed; z-index:20; left:50%; transform:translateX(-50%);
+    bottom:calc(14px + env(safe-area-inset-bottom));
+    display:flex; gap:8px; padding:7px; border-radius:16px; flex-wrap:wrap; justify-content:center;
+    background:rgba(18,26,42,.94); border:1px solid var(--line); box-shadow:0 10px 30px rgba(0,0,0,.4);
+    max-width:calc(100% - 24px); transition:opacity .3s;
+  }
+  .btn{ min-height:46px; padding:10px 16px; border-radius:12px; font-size:15px; background:var(--card);
+    color:var(--ink); border:1px solid var(--line); white-space:nowrap; }
+  .btn.primary{ min-width:112px; color:var(--accentInk); border-color:transparent;
+    background:linear-gradient(180deg,var(--accent),var(--accent2)); font-weight:800; }
+  .btn kbd{ font-family:var(--mono); font-size:10px; opacity:.6; margin-left:6px; font-weight:500; }
+  @media (max-width:560px){ .btn kbd{ display:none; } .btn{ padding:10px 13px; } }
+
+  body.idle header, body.idle .hud, body.idle .controls{ opacity:0; pointer-events:none; }
+  body.idle header > *{ pointer-events:none; }
+  body.idle{ cursor:none; }
+
+  /* ===== サイドメニュー（右から。モーダルにしない） ===== */
+  .overlay{ position:fixed; inset:0; background:rgba(0,0,0,.35); opacity:0; visibility:hidden;
+    transition:opacity .3s ease, visibility .3s ease; z-index:80; }
+  .overlay.open{ opacity:1; visibility:visible; }
+  .side{ position:fixed; top:0; right:0; height:100%; width:min(88%,360px); z-index:90;
+    background:var(--bg1); border-left:1px solid var(--line); transform:translateX(100%);
+    transition:transform .3s ease; display:flex; flex-direction:column;
+    padding:calc(16px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom));
+    overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .side.open{ transform:translateX(0); }
+  .side .top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+  .side .top b{ font-size:16px; font-weight:800; }
+  .side .closeBtn{ width:44px; height:44px; border-radius:12px; background:var(--card); color:var(--ink); font-size:20px; }
+  .side h4{ font-size:12px; letter-spacing:.14em; color:var(--accent); margin:20px 0 10px; }
+  .side .group{ display:flex; flex-direction:column; gap:12px; }
+  .field{ display:flex; flex-direction:column; gap:6px; }
+  .field-top{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+  .field label, .field .label{ font-size:14px; }
+  .field output{ font-family:var(--mono); font-size:12.5px; font-variant-numeric:tabular-nums; color:var(--accent); }
+  .hint{ font-size:12px; color:var(--muted); line-height:1.7; font-weight:500; }
+  input[type=range]{ width:100%; min-width:0; accent-color:var(--accent); height:30px; }
+  input[type=range]:disabled{ opacity:.4; }
+
+  .seg{ display:grid; grid-auto-flow:column; grid-auto-columns:1fr; gap:4px; padding:4px; border-radius:12px;
+    background:rgba(0,0,0,.25); border:1px solid var(--line); }
+  .seg label{ position:relative; cursor:pointer; min-width:0; }
+  .seg input{ position:absolute; opacity:0; inset:0; cursor:pointer; margin:0; }
+  .seg span{ display:block; text-align:center; padding:7px 4px; border-radius:9px; font-size:13px; color:var(--muted); }
+  .seg input:checked + span{ background:var(--accent); color:var(--accentInk); font-weight:800; }
+  .seg input:focus-visible + span{ outline:2px solid var(--accent); outline-offset:1px; }
+  .seg input:disabled + span{ opacity:.4; }
+
+  .bgmPick{ display:flex; flex-wrap:wrap; gap:6px; }
+  .bgmPick button{ padding:7px 12px; border-radius:10px; font-size:13px; background:var(--card);
+    border:1px solid var(--line); color:var(--ink); }
+  .bgmPick button.on{ background:var(--accent); color:var(--accentInk); border-color:var(--accent); }
+  #bgmMsg:empty{ display:none; }
+  #bgmMsg.ng{ color:var(--danger); }
+  .chips{ display:flex; gap:6px; flex-wrap:wrap; }
+  .chip{ padding:4px 11px; border-radius:999px; font-family:var(--mono); font-size:12.5px; font-weight:500;
+    background:var(--card); border:1px solid var(--line); color:var(--ink); }
+  .chip[aria-pressed="true"]{ background:var(--accent); color:var(--accentInk); border-color:var(--accent); }
+
+  .toggle-row{ display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px 14px; border-radius:14px; background:var(--card); border:1px solid var(--line); }
+  .toggle-row span{ font-size:14px; line-height:1.5; }
+  .toggle-row.disabled{ opacity:.45; }
+  .switch{ position:relative; width:54px; height:30px; flex:none; }
+  .switch input{ position:absolute; opacity:0; width:100%; height:100%; margin:0; cursor:pointer; }
+  .switch .slider{ position:absolute; inset:0; background:var(--line); border-radius:30px; transition:.2s; }
+  .switch .slider::before{ content:""; position:absolute; width:24px; height:24px; left:3px; top:3px;
+    background:#fff; border-radius:50%; transition:.2s; }
+  .switch input:checked + .slider{ background:var(--accent2); }
+  .switch input:checked + .slider::before{ transform:translateX(24px); }
+  .switch input:focus-visible + .slider{ outline:3px solid var(--accent); outline-offset:2px; }
+
+  .keys{ display:grid; grid-template-columns:auto 1fr; gap:6px 10px; font-size:12.5px; color:var(--muted); font-weight:500; }
+  .keys kbd{ font-family:var(--mono); background:var(--card); border:1px solid var(--line); border-radius:5px;
+    padding:0 7px; color:var(--ink); text-align:center; }
+  .side .guide{ font-size:13px; color:var(--muted); line-height:1.9; font-weight:500; }
+  .side .guide ol{ padding-left:20px; }
+  .side .med{ font-size:12px; color:var(--muted); line-height:1.8; font-weight:500; }
+  .side .learn{ margin-top:auto; padding-top:22px; }
+  .side .learn a{ font-size:14px; text-decoration:none; display:block; padding:12px 0; word-break:break-all; }
+  .side .side-copy{ display:block; font-size:10.5px; letter-spacing:.1em; color:var(--muted); opacity:.7; margin-top:10px; }
+
+  /* 音声ロック警告バナー */
+  .lockbar{ position:fixed; left:12px; right:12px; top:calc(10px + env(safe-area-inset-top)); max-width:456px; margin:0 auto;
+    background:rgba(40,22,22,.96); border:1px solid var(--danger); color:var(--ink); font-size:12.5px; line-height:1.6;
+    padding:10px 14px; border-radius:12px; z-index:1100; opacity:0; visibility:hidden; transition:opacity .3s ease, visibility .3s ease; }
+  .lockbar.show{ opacity:1; visibility:visible; }
+
+  @media (prefers-reduced-motion: reduce){
+    #splash .tapstart, #splash .demo span{ animation:none; }
+  }
 </style>
 </head>
 <body>
 
-<div class="app" id="app">
-  <main class="stage" id="stage" data-stage="theme" aria-label="トレーニング画面">
-    <div class="target" id="target" aria-live="polite">
-      <p class="quote" id="quote">千里の道も一歩から</p>
-      <p class="author" id="author">老子</p>
-    </div>
-    <div class="hud" aria-hidden="true">
-      <span>文字 <b id="hudSize">72.0</b>px</span>
-      <span>最小 <b id="hudMin">8</b>px</span>
-      <span><b id="hudCycles">0</b> 回</span>
-      <span><b id="hudTime">00:00</b></span>
-    </div>
-    <div class="controls" id="controls">
-      <button class="btn primary" id="playBtn" type="button">スタート<kbd>Space</kbd></button>
-      <button class="btn" id="nextBtn" type="button">次の言葉<kbd>N</kbd></button>
-      <button class="btn" id="panelBtn" type="button" aria-controls="panel">設定<kbd>S</kbd></button>
-      <button class="btn" id="fsBtn" type="button">全画面<kbd>F</kbd></button>
-    </div>
-  </main>
-
-  <aside class="panel" id="panel" aria-label="設定">
-    <div class="panel-head">
-      <div>
-        <h1>縮む名言</h1>
-        <p>小さくなる文字を、最後まで目で追う</p>
-      </div>
-      <button class="btn close" id="closeBtn" type="button">閉じる</button>
-    </div>
-    <form class="groups" id="form">
-      <section class="group">
-        <h2>言葉</h2>
-        <div class="seg" role="radiogroup" aria-label="言語">
-          <label><input type="radio" name="lang" id="lang-ja" value="ja"><span>日本語</span></label>
-          <label><input type="radio" name="lang" id="lang-en" value="en"><span>English</span></label>
-          <label><input type="radio" name="lang" id="lang-mix" value="mix"><span>ミックス</span></label>
-        </div>
-        <label class="check"><input type="checkbox" id="change"> 1回縮むごとに新しい言葉にする</label>
-        <label class="check"><input type="checkbox" id="showAuthor"> 誰の言葉かを表示する</label>
-      </section>
-
-      <section class="group">
-        <h2>サイズ</h2>
-        <div class="field">
-          <div class="field-top"><label for="min">最小サイズ</label><output id="minOut" for="min">8 px</output></div>
-          <input type="range" id="min" min="2" max="40" step="1">
-          <div class="chips" id="minChips">
-            <button type="button" class="chip" data-v="4">4</button>
-            <button type="button" class="chip" data-v="6">6</button>
-            <button type="button" class="chip" data-v="8">8</button>
-            <button type="button" class="chip" data-v="10">10</button>
-            <button type="button" class="chip" data-v="12">12</button>
-            <button type="button" class="chip" data-v="16">16</button>
-            <button type="button" class="chip" data-v="24">24</button>
-          </div>
-          <p class="hint">ここまで小さくなったら戻ります。読める限界の少し下を狙うのが目安です。</p>
-        </div>
-        <div class="field">
-          <div class="field-top"><label for="max">最大サイズ</label><output id="maxOut" for="max">72 px</output></div>
-          <input type="range" id="max" min="24" max="200" step="2">
-        </div>
-      </section>
-
-      <section class="group">
-        <h2>縮み方</h2>
-        <div class="field">
-          <div class="field-top"><label for="shrink">縮む時間</label><output id="shrinkOut" for="shrink">6 秒</output></div>
-          <input type="range" id="shrink" min="2" max="20" step="0.5">
-        </div>
-        <div class="field">
-          <div class="field-top"><label for="hold">最小サイズで止める</label><output id="holdOut" for="hold">1 秒</output></div>
-          <input type="range" id="hold" min="0" max="5" step="0.5">
-        </div>
-        <div class="field">
-          <span class="label">戻り方</span>
-          <div class="seg" role="radiogroup" aria-label="戻り方">
-            <label><input type="radio" name="ret" id="ret-smooth" value="smooth"><span>なめらかに大きく</span></label>
-            <label><input type="radio" name="ret" id="ret-snap" value="snap"><span>一瞬で戻す</span></label>
-          </div>
-        </div>
-      </section>
-
-      <section class="group">
-        <h2>動き</h2>
-        <div class="seg" role="radiogroup" aria-label="動き">
-          <label><input type="radio" name="motion" id="motion-still" value="still"><span>中央で止める</span></label>
-          <label><input type="radio" name="motion" id="motion-move" value="move"><span>動き回る</span></label>
-        </div>
-        <div class="field">
-          <div class="field-top"><label for="speed">動く速さ</label><output id="speedOut" for="speed">120 px/秒</output></div>
-          <input type="range" id="speed" min="20" max="500" step="10">
-        </div>
-        <div class="field">
-          <span class="label">向き</span>
-          <div class="seg" role="radiogroup" aria-label="向き">
-            <label><input type="radio" name="dir" id="dir-8" value="8"><span>上下左右＋斜め</span></label>
-            <label><input type="radio" name="dir" id="dir-free" value="free"><span>好きな角度</span></label>
-          </div>
-        </div>
-        <div class="field">
-          <div class="field-top"><label for="turn">向きを変える間隔</label><output id="turnOut" for="turn">約 2.5 秒</output></div>
-          <input type="range" id="turn" min="0.5" max="8" step="0.5">
-          <p class="hint">この間隔の前後でランダムに向きが変わります。壁に当たると跳ね返ります。</p>
-        </div>
-      </section>
-
-      <section class="group">
-        <h2>見た目</h2>
-        <div class="field">
-          <span class="label">書体</span>
-          <div class="seg" role="radiogroup" aria-label="書体">
-            <label><input type="radio" name="font" id="font-gothic" value="gothic"><span>ゴシック</span></label>
-            <label><input type="radio" name="font" id="font-mincho" value="mincho"><span>明朝</span></label>
-          </div>
-        </div>
-        <div class="field">
-          <span class="label">画面の色</span>
-          <div class="seg" role="radiogroup" aria-label="画面の色">
-            <label><input type="radio" name="stageColor" id="sc-theme" value="theme"><span>自動</span></label>
-            <label><input type="radio" name="stageColor" id="sc-paper" value="paper"><span>白</span></label>
-            <label><input type="radio" name="stageColor" id="sc-kinari" value="kinari"><span>生成り</span></label>
-            <label><input type="radio" name="stageColor" id="sc-night" value="night"><span>黒</span></label>
-          </div>
-        </div>
-      </section>
-
-      <section class="group">
-        <h2>キー操作</h2>
-        <div class="keys">
-          <kbd>Space</kbd><span>スタート／一時停止</span>
-          <kbd>N</kbd><span>次の言葉</span>
-          <kbd>S</kbd><span>設定を開く／閉じる</span>
-          <kbd>F</kbd><span>全画面</span>
-        </div>
-        <p class="hint">再生中は数秒でボタンが隠れます。マウスを動かすか画面に触れると戻ります。</p>
-      </section>
-    </form>
-  </aside>
+<!-- ============ S0 スプラッシュ（起動時だけ／AudioContext unlock） ============ -->
+<div id="splash" role="dialog" aria-label="縮む名言を開始">
+  <img src="FNT512.png" alt="FNT ロゴ" />
+  <div class="fnt">FUNCTIONAL NEURO TRAINING</div>
+  <h1>縮む名言</h1>
+  <p class="lead">小さくなる言葉を、最後まで目で追う。</p>
+  <div class="demo" aria-hidden="true"><span>継続は力なり</span></div>
+  <button class="tapstart" id="tapStart" type="button">タップで開始</button>
+  <div class="audioNote">
+    <span class="note">🔊 縮むと高く、大きくなると低くなる音が鳴ります</span>
+    <button class="muteToggle" id="muteToggle" type="button" aria-pressed="false">🔊 音オン</button>
+  </div>
+  <div class="copy">© Functional Neuro Training / Legrandchariot</div>
 </div>
 
+<!-- ============ 本体 ============ -->
+<main id="stage" data-stage="night" aria-label="トレーニング画面">
+  <div class="target" id="target" aria-live="polite">
+    <p class="quote" id="quote"></p>
+    <p class="author" id="author"></p>
+  </div>
+</main>
+
+<header>
+  <div class="logo"><img src="FNT512-transparent.png" alt="" /><b>縮む名言</b></div>
+  <button class="menuBtn" id="menuBtn" type="button" aria-label="メニューを開く" aria-haspopup="true">☰</button>
+</header>
+
+<div class="hud" aria-hidden="true">
+  <span>文字 <b id="hudSize">72.0</b>px</span>
+  <span>最小 <b id="hudMin">8</b>px</span>
+  <span><b id="hudCycles">0</b> 回</span>
+  <span><b id="hudTime">00:00</b></span>
+</div>
+
+<div class="controls" id="controls">
+  <button class="btn primary" id="playBtn" type="button"><span id="playLabel">スタート</span><kbd>Space</kbd></button>
+  <button class="btn" id="nextBtn" type="button">次の言葉<kbd>N</kbd></button>
+  <button class="btn" id="fsBtn" type="button">全画面<kbd>F</kbd></button>
+</div>
+
+<!-- ============ サイドメニュー（設定） ============ -->
+<div class="overlay" id="overlay"></div>
+<nav class="side scroll" id="side" aria-label="メニュー" aria-hidden="true">
+  <div class="top"><b>メニュー</b><button class="closeBtn" id="closeMenu" type="button" aria-label="メニューを閉じる">×</button></div>
+
+  <form id="form" autocomplete="off">
+    <h4>言葉</h4>
+    <div class="group">
+      <div class="seg" role="radiogroup" aria-label="言語">
+        <label><input type="radio" name="lang" id="lang-ja" value="ja"><span>日本語</span></label>
+        <label><input type="radio" name="lang" id="lang-en" value="en"><span>English</span></label>
+        <label><input type="radio" name="lang" id="lang-mix" value="mix"><span>ミックス</span></label>
+      </div>
+      <div class="toggle-row" id="meaningRow">
+        <span>英語のあとに<br>日本語の意味を出す</span>
+        <label class="switch"><input type="checkbox" id="meaning" aria-label="英語のあとに日本語の意味を出す"><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <span>1回縮むごとに<br>新しい言葉にする</span>
+        <label class="switch"><input type="checkbox" id="change" aria-label="1回縮むごとに新しい言葉にする"><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <span>誰の言葉かを表示</span>
+        <label class="switch"><input type="checkbox" id="showAuthor" aria-label="誰の言葉かを表示"><span class="slider"></span></label>
+      </div>
+    </div>
+
+    <h4>サイズ</h4>
+    <div class="group">
+      <div class="field">
+        <div class="field-top"><label for="min">最小サイズ</label><output id="minOut" for="min">8 px</output></div>
+        <input type="range" id="min" min="2" max="40" step="1">
+        <div class="chips" id="minChips">
+          <button type="button" class="chip" data-v="4">4</button>
+          <button type="button" class="chip" data-v="6">6</button>
+          <button type="button" class="chip" data-v="8">8</button>
+          <button type="button" class="chip" data-v="10">10</button>
+          <button type="button" class="chip" data-v="12">12</button>
+          <button type="button" class="chip" data-v="16">16</button>
+          <button type="button" class="chip" data-v="24">24</button>
+        </div>
+        <p class="hint">ここまで小さくなったら戻ります。読める限界の少し下が目安。</p>
+      </div>
+      <div class="field">
+        <div class="field-top"><label for="max">最大サイズ</label><output id="maxOut" for="max">72 px</output></div>
+        <input type="range" id="max" min="24" max="200" step="2">
+        <p class="hint">最大サイズで2行になった言葉は、小さくなっても2行のまま。</p>
+      </div>
+    </div>
+
+    <h4>縮み方</h4>
+    <div class="group">
+      <div class="field">
+        <div class="field-top"><label for="shrink">縮む時間</label><output id="shrinkOut" for="shrink">6 秒</output></div>
+        <input type="range" id="shrink" min="2" max="20" step="0.5">
+      </div>
+      <div class="field">
+        <div class="field-top"><label for="hold">最小サイズで止める</label><output id="holdOut" for="hold">1 秒</output></div>
+        <input type="range" id="hold" min="0" max="5" step="0.5">
+      </div>
+      <div class="field">
+        <span class="label">戻り方</span>
+        <div class="seg" role="radiogroup" aria-label="戻り方">
+          <label><input type="radio" name="ret" id="ret-smooth" value="smooth"><span>なめらかに</span></label>
+          <label><input type="radio" name="ret" id="ret-snap" value="snap"><span>一瞬で</span></label>
+        </div>
+      </div>
+    </div>
+
+    <h4>動き</h4>
+    <div class="group">
+      <div class="seg" role="radiogroup" aria-label="動き">
+        <label><input type="radio" name="motion" id="motion-still" value="still"><span>中央で止める</span></label>
+        <label><input type="radio" name="motion" id="motion-move" value="move"><span>動き回る</span></label>
+      </div>
+      <div class="field">
+        <div class="field-top"><label for="speed">動く速さ</label><output id="speedOut" for="speed">120 px/秒</output></div>
+        <input type="range" id="speed" min="20" max="500" step="10">
+      </div>
+      <div class="field">
+        <span class="label">向き</span>
+        <div class="seg" role="radiogroup" aria-label="向き">
+          <label><input type="radio" name="dir" id="dir-8" value="8"><span>上下左右＋斜め</span></label>
+          <label><input type="radio" name="dir" id="dir-free" value="free"><span>好きな角度</span></label>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-top"><label for="turn">向きを変える間隔</label><output id="turnOut" for="turn">約 2.5 秒</output></div>
+        <input type="range" id="turn" min="0.5" max="8" step="0.5">
+        <p class="hint">この間隔の前後でランダムに向きが変わり、壁に当たると跳ね返ります。</p>
+      </div>
+    </div>
+
+    <h4>見た目</h4>
+    <div class="group">
+      <div class="field">
+        <span class="label">書体</span>
+        <div class="seg" role="radiogroup" aria-label="書体">
+          <label><input type="radio" name="font" id="font-round" value="round"><span>丸ゴシック</span></label>
+          <label><input type="radio" name="font" id="font-mincho" value="mincho"><span>明朝</span></label>
+        </div>
+      </div>
+      <div class="field">
+        <span class="label">画面の色</span>
+        <div class="seg" role="radiogroup" aria-label="画面の色">
+          <label><input type="radio" name="stageColor" id="sc-night" value="night"><span>黒</span></label>
+          <label><input type="radio" name="stageColor" id="sc-paper" value="paper"><span>白</span></label>
+          <label><input type="radio" name="stageColor" id="sc-kinari" value="kinari"><span>生成り</span></label>
+        </div>
+      </div>
+    </div>
+
+    <h4>音</h4>
+    <div class="group">
+      <div class="toggle-row">
+        <span>音を鳴らす</span>
+        <label class="switch"><input type="checkbox" id="soundOn" aria-label="音を鳴らす"><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row" id="sweepRow">
+        <span>ピューン音<br><small class="hint">縮むと高く、大きくなると低くなる</small></span>
+        <label class="switch"><input type="checkbox" id="sweep" aria-label="ピューン音"><span class="slider"></span></label>
+      </div>
+      <div class="field" id="sweepVolRow">
+        <div class="field-top"><label for="sweepVol">ピューン音の音量</label><output id="sweepVolOut" for="sweepVol">40</output></div>
+        <input type="range" id="sweepVol" min="0" max="100" step="5">
+      </div>
+      <div class="field" id="bgmRow">
+        <span class="label">BGM</span>
+        <div class="bgmPick" id="bgmPick"></div>
+        <div class="field-top"><label for="bgmVol">BGMの音量</label><output id="bgmVolOut" for="bgmVol">35</output></div>
+        <input type="range" id="bgmVol" min="0" max="100" step="5">
+        <p class="hint" id="bgmMsg"></p>
+      </div>
+      <div class="toggle-row" id="speakRow">
+        <span>言葉を読み上げる<br><small class="hint">読み上げ中はBGMが下がります</small></span>
+        <label class="switch"><input type="checkbox" id="speak" aria-label="言葉を読み上げる"><span class="slider"></span></label>
+      </div>
+    </div>
+  </form>
+
+  <h4>キー操作（パソコン）</h4>
+  <div class="keys">
+    <kbd>Space</kbd><span>スタート／一時停止</span>
+    <kbd>N</kbd><span>次の言葉</span>
+    <kbd>M</kbd><span>メニュー</span>
+    <kbd>F</kbd><span>全画面</span>
+  </div>
+  <p class="hint" style="margin-top:8px;">動いている間は数秒でボタンが隠れます。画面に触れると戻ります。</p>
+
+  <h4>ホーム画面に追加すると使いやすい</h4>
+  <div class="guide">
+    <ol>
+      <li>共有ボタン（□から↑のマーク）を押す</li>
+      <li>「ホーム画面に追加」を選ぶ</li>
+    </ol>
+    <p style="margin-top:6px;">※追加しなくても、ぜんぶ使えるよ。</p>
+  </div>
+
+  <h4>ご注意</h4>
+  <p class="med">このアプリは眼と脳を使うセルフケアで、医療行為ではありません。急な視力低下・片目だけの見えにくさ・視野の欠け・眼の痛み・強いめまいがある場合は、眼科や医療機関を受診してください。気分が悪くなったら、すぐにやめてね。</p>
+
+  <div class="learn">
+    <a href="https://bodydiscovery.info/owned-optin" target="_blank" rel="noopener">もっと学びたい人へ → https://bodydiscovery.info/owned-optin</a>
+    <span class="side-copy">© Functional Neuro Training / Legrandchariot</span>
+  </div>
+</nav>
+
+<div class="lockbar" id="lockbar" role="alert">音を再生できませんでした。画面だけでも、そのまま続けられるよ。</div>
+
 <script>
-(() => {
-  // [言葉, 誰の言葉か]。出典がはっきりしないものは作者を付けない
-  const QUOTES = {
-    ja: [
-      ["千里の道も一歩から", "老子"],
-      ["継続は力なり", ""],
-      ["七転び八起き", ""],
-      ["石の上にも三年", ""],
-      ["急がば回れ", ""],
-      ["塵も積もれば山となる", ""],
-      ["雨垂れ石を穿つ", ""],
-      ["失敗は成功のもと", ""],
-      ["思い立ったが吉日", ""],
-      ["好きこそ物の上手なれ", ""],
-      ["案ずるより産むが易し", ""],
-      ["笑う門には福来る", ""],
-      ["為せば成る 為さねば成らぬ 何事も", "上杉鷹山"],
-      ["初心忘るべからず", "世阿弥"],
-      ["過ぎたるは猶及ばざるが如し", "『論語』"],
-      ["学びて思わざれば則ち罔し", "『論語』"],
-      ["己の欲せざる所は人に施す勿れ", "『論語』"],
-      ["我思う、ゆえに我あり", "デカルト"],
-      ["人間は考える葦である", "パスカル"],
-      ["知は力なり", "フランシス・ベーコン"],
-      ["汝自身を知れ", "デルポイの格言"],
-      ["少年よ、大志を抱け", "ウィリアム・S・クラーク"],
-      ["天は自ら助くる者を助く", "サミュエル・スマイルズ『自助論』"],
-      ["天才とは1%のひらめきと99%の努力である", "トーマス・エジソン"],
-      ["雨ニモマケズ 風ニモマケズ", "宮沢賢治"],
-      ["置かれた場所で咲きなさい", "渡辺和子"],
-      ["一日一生", "内村鑑三"],
-      ["今日の一歩が、明日の景色を変える", ""],
-      ["完璧より、まず一歩", ""],
-      ["昨日の自分を、少しだけ超えていく", ""],
-      ["焦らず、止まらず、続けていく", ""],
-      ["小さな積み重ねが、大きな差になる", ""],
-      ["できない理由より、できる方法を探す", ""],
-      ["いまこの瞬間に、集中する", ""],
-      ["迷ったら、ワクワクする方へ", ""],
-      ["行動が、不安を小さくする", ""],
-      ["比べる相手は、昨日の自分", ""]
-    ],
-    en: [
-      ["The journey of a thousand miles begins with one step.", "Lao Tzu"],
-      ["The only way to do great work is to love what you do.", "Steve Jobs"],
-      ["Well done is better than well said.", "Benjamin Franklin"],
-      ["The unexamined life is not worth living.", "Socrates"],
-      ["Know thyself.", "Delphic maxim"],
-      ["I think, therefore I am.", "René Descartes"],
-      ["Fortune favors the bold.", "Latin proverb"],
-      ["Imagination is more important than knowledge.", "Albert Einstein"],
-      ["Genius is one percent inspiration and ninety-nine percent perspiration.", "Thomas Edison"],
-      ["What does not kill me makes me stronger.", "Friedrich Nietzsche"],
-      ["We are what we repeatedly do.", "Will Durant"],
-      ["Do. Or do not. There is no try.", "Yoda, The Empire Strikes Back"],
-      ["Hope is a good thing, maybe the best of things.", "The Shawshank Redemption"],
-      ["Carpe diem.", "Horace"],
-      ["To be, or not to be, that is the question.", "William Shakespeare"],
-      ["Practice makes perfect.", "Proverb"],
-      ["Rome wasn't built in a day.", "Proverb"],
-      ["Where there's a will, there's a way.", "Proverb"],
-      ["Actions speak louder than words.", "Proverb"],
-      ["Slow and steady wins the race.", "Proverb"],
-      ["If you want to go fast, go alone. If you want to go far, go together.", "Proverb"],
-      ["The man who moves a mountain begins by carrying away small stones.", "Proverb"],
-      ["The best time to plant a tree was twenty years ago. The second best time is now.", "Proverb"],
-      ["Progress, not perfection.", ""],
-      ["Done is better than perfect.", ""],
-      ["Small steps every day.", ""],
-      ["Focus on what you can control.", ""],
-      ["Your future is created by what you do today.", ""],
-      ["Stay curious. Keep going.", ""],
-      ["Discipline is choosing what you want most over what you want now.", ""],
-      ["Be stronger than your excuses.", ""],
-      ["One more rep. One more page. One more step.", ""]
-    ]
-  };
+/* =========================================================
+   言葉のデータ
+   ・日本語 [言葉, 誰の言葉か]
+   ・英語   [言葉, 誰の言葉か, 日本語の意味]
+   🔴 名言は取り違えが多い。出典がはっきりしないものには作者を付けない
+   ========================================================= */
+const QUOTES = {
+  ja: [
+    ["千里の道も一歩から", "老子"],
+    ["継続は力なり", ""],
+    ["七転び八起き", ""],
+    ["石の上にも三年", ""],
+    ["急がば回れ", ""],
+    ["塵も積もれば山となる", ""],
+    ["雨垂れ石を穿つ", ""],
+    ["失敗は成功のもと", ""],
+    ["思い立ったが吉日", ""],
+    ["好きこそ物の上手なれ", ""],
+    ["案ずるより産むが易し", ""],
+    ["笑う門には福来る", ""],
+    ["為せば成る 為さねば成らぬ 何事も", "上杉鷹山"],
+    ["初心忘るべからず", "世阿弥"],
+    ["過ぎたるは猶及ばざるが如し", "『論語』"],
+    ["学びて思わざれば則ち罔し", "『論語』"],
+    ["己の欲せざる所は人に施す勿れ", "『論語』"],
+    ["我思う、ゆえに我あり", "デカルト"],
+    ["人間は考える葦である", "パスカル"],
+    ["知は力なり", "フランシス・ベーコン"],
+    ["汝自身を知れ", "デルポイの格言"],
+    ["少年よ、大志を抱け", "ウィリアム・S・クラーク"],
+    ["天は自ら助くる者を助く", "サミュエル・スマイルズ『自助論』"],
+    ["天才とは1%のひらめきと99%の努力である", "トーマス・エジソン"],
+    ["雨ニモマケズ 風ニモマケズ", "宮沢賢治"],
+    ["置かれた場所で咲きなさい", "渡辺和子"],
+    ["一日一生", "内村鑑三"],
+    ["今日の一歩が、明日の景色を変える", ""],
+    ["完璧より、まず一歩", ""],
+    ["昨日の自分を、少しだけ超えていく", ""],
+    ["焦らず、止まらず、続けていく", ""],
+    ["小さな積み重ねが、大きな差になる", ""],
+    ["できない理由より、できる方法を探す", ""],
+    ["いまこの瞬間に、集中する", ""],
+    ["迷ったら、ワクワクする方へ", ""],
+    ["行動が、不安を小さくする", ""],
+    ["比べる相手は、昨日の自分", ""]
+  ],
+  en: [
+    ["The journey of a thousand miles begins with one step.", "Lao Tzu", "千里の道も、一歩から始まる"],
+    ["The only way to do great work is to love what you do.", "Steve Jobs", "すばらしい仕事をする唯一の方法は、自分のしていることを愛すること"],
+    ["Well done is better than well said.", "Benjamin Franklin", "うまく言うより、うまくやるほうがいい"],
+    ["The unexamined life is not worth living.", "Socrates", "吟味されない人生は、生きるに値しない"],
+    ["Know thyself.", "Delphic maxim", "汝自身を知れ"],
+    ["I think, therefore I am.", "René Descartes", "我思う、ゆえに我あり"],
+    ["Fortune favors the bold.", "Latin proverb", "幸運は、勇気ある者に味方する"],
+    ["Imagination is more important than knowledge.", "Albert Einstein", "想像力は、知識よりも大切だ"],
+    ["Genius is one percent inspiration and ninety-nine percent perspiration.", "Thomas Edison", "天才とは、1%のひらめきと99%の汗である"],
+    ["What does not kill me makes me stronger.", "Friedrich Nietzsche", "私を殺さないものは、私をより強くする"],
+    ["We are what we repeatedly do.", "Will Durant", "私たちは、くり返し行うことでできている"],
+    ["Do. Or do not. There is no try.", "Yoda, The Empire Strikes Back", "やるか、やらないかだ。「ためしに」はない"],
+    ["Hope is a good thing, maybe the best of things.", "The Shawshank Redemption", "希望はいいものだ。たぶん、何よりもいいものだ"],
+    ["Carpe diem.", "Horace", "今日という日を摘め（今を生きよ）"],
+    ["To be, or not to be, that is the question.", "William Shakespeare", "生きるべきか、死ぬべきか、それが問題だ"],
+    ["Practice makes perfect.", "Proverb", "練習が完璧をつくる（習うより慣れよ）"],
+    ["Rome wasn't built in a day.", "Proverb", "ローマは一日にして成らず"],
+    ["Where there's a will, there's a way.", "Proverb", "意志あるところに道はある"],
+    ["Actions speak louder than words.", "Proverb", "行動は、言葉よりも雄弁だ"],
+    ["Slow and steady wins the race.", "Proverb", "ゆっくりでも着実な者が勝つ"],
+    ["If you want to go fast, go alone. If you want to go far, go together.", "Proverb", "早く行きたいなら、ひとりで行け。遠くへ行きたいなら、みんなで行け"],
+    ["The man who moves a mountain begins by carrying away small stones.", "Proverb", "山を動かす人は、小さな石を運ぶことから始める"],
+    ["The best time to plant a tree was twenty years ago. The second best time is now.", "Proverb", "木を植えるいちばんの時期は20年前だった。次にいい時期は、いまだ"],
+    ["Progress, not perfection.", "", "完璧より、前進を"],
+    ["Done is better than perfect.", "", "完璧を目指すより、まず終わらせよう"],
+    ["Small steps every day.", "", "毎日、小さな一歩を"],
+    ["Focus on what you can control.", "", "自分で変えられることに集中しよう"],
+    ["Your future is created by what you do today.", "", "未来は、今日の行動がつくる"],
+    ["Stay curious. Keep going.", "", "好奇心を持ち続けて、進み続けよう"],
+    ["Discipline is choosing what you want most over what you want now.", "", "自制とは「いま欲しいもの」より「いちばん欲しいもの」を選ぶこと"],
+    ["Be stronger than your excuses.", "", "言い訳よりも、強くあれ"],
+    ["One more rep. One more page. One more step.", "", "あと1回。あと1ページ。あと一歩。"]
+  ]
+};
 
-  const DEFAULTS = {
-    lang: "mix", change: true, showAuthor: true,
-    min: 8, max: 72, shrink: 6, hold: 1, ret: "smooth",
-    motion: matchMedia("(prefers-reduced-motion: reduce)").matches ? "still" : "move",
-    speed: 120, dir: "8", turn: 2.5, font: "gothic", stageColor: "theme"
-  };
-  const KEY = "shrink-quote-settings-v1";
-  let S = { ...DEFAULTS };
-  try { const saved = JSON.parse(localStorage.getItem(KEY) || "null"); if (saved) S = { ...DEFAULTS, ...saved }; } catch (e) {}
-  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+const $ = id => document.getElementById(id);
 
-  const $ = id => document.getElementById(id);
-  const app = $("app"), stage = $("stage"), target = $("target");
-  const quoteEl = $("quote"), authorEl = $("author");
+/* =========================================================
+   設定（localStorage。読めない端末でも既定値で動く）
+   ========================================================= */
+const DEFAULTS = {
+  lang:"mix", meaning:true, change:true, showAuthor:true,
+  min:8, max:72, shrink:6, hold:1, ret:"smooth",
+  motion: matchMedia("(prefers-reduced-motion: reduce)").matches ? "still" : "move",
+  speed:120, dir:"8", turn:2.5, font:"round", stageColor:"night",
+  sweep:true, sweepVol:40, bgm:"", bgmVol:35, speak:false
+};
+const KEY = "shrink-quote-settings-v2";
+window.S = { ...DEFAULTS };
+try{ const saved = JSON.parse(localStorage.getItem(KEY) || "null"); if(saved) window.S = { ...DEFAULTS, ...saved }; }catch(e){}
+const S = window.S;
+if(S.font === "gothic") S.font = "round";
+if(S.stageColor === "theme") S.stageColor = "night";
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 
-  // ---------- 言葉 ----------
-  let lastPick = "";
-  function pickQuote() {
-    const pool = S.lang === "mix" ? [...QUOTES.ja, ...QUOTES.en] : QUOTES[S.lang];
-    let q;
-    do { q = pool[Math.floor(Math.random() * pool.length)]; } while (pool.length > 1 && q[0] === lastPick);
-    lastPick = q[0];
-    quoteEl.textContent = q[0];
-    authorEl.textContent = q[1] ? "— " + q[1] : "";
-    authorEl.hidden = !S.showAuthor || !q[1];
-    target.lang = /[぀-ヿ一-鿿]/.test(q[0]) ? "ja" : "en";
-  }
+/* =========================================================
+   音（AudioContext は try-catch。鳴らなくても画面は続く）
+   ========================================================= */
+window.muted = false;
+try{ window.muted = localStorage.getItem("shrink_muted") === "true"; }catch(e){}
+window.audioCtx = null; window.audioReady = false;
 
-  // ---------- 状態 ----------
-  let running = false, t = 0, total = 0, cycles = 0;
-  let W = 0, H = 0, cx = 0, cy = 0, vx = 1, vy = 0, nextTurn = 0;
-  let size = S.max;
-
-  function measureStage() {
-    W = stage.clientWidth; H = stage.clientHeight;
-    target.style.maxWidth = Math.round(W * 0.84) + "px";
-  }
-  new ResizeObserver(measureStage).observe(stage);
-  measureStage(); cx = W / 2; cy = H / 2;
-
-  const rand = (a, b) => a + Math.random() * (b - a);
-  let dirIndex = -1;
-  function newDirection() {
-    let ang;
-    if (S.dir === "8") {
-      let i; do { i = Math.floor(Math.random() * 8); } while (i === dirIndex);
-      dirIndex = i; ang = i * Math.PI / 4;
-    } else {
-      ang = Math.random() * Math.PI * 2;
+function applyMuteUI(){
+  const b = $("muteToggle");
+  b.textContent = window.muted ? "🔇 音オフ" : "🔊 音オン";
+  b.setAttribute("aria-pressed", window.muted ? "true" : "false");
+  b.classList.toggle("off", window.muted);
+  $("soundOn").checked = !window.muted;
+  $("bgmRow").style.opacity = window.muted ? ".45" : "";
+  $("sweepRow").classList.toggle("disabled", window.muted);
+  $("speakRow").classList.toggle("disabled", window.muted);
+}
+function setMuted(v){
+  window.muted = !!v;
+  try{ localStorage.setItem("shrink_muted", window.muted ? "true" : "false"); }catch(e){}
+  applyMuteUI();
+  if(window.muted){ stopSpeak(); sweepSilence(); }
+  bgmSync();
+}
+function unlockAudio(){
+  try{
+    if(!window.audioCtx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      window.audioCtx = new AC();
     }
-    vx = Math.cos(ang); vy = Math.sin(ang);
-    nextTurn = total + rand(S.turn * 0.5, S.turn * 1.5);
+    if(window.audioCtx.state === "suspended") window.audioCtx.resume();
+    const buf = window.audioCtx.createBuffer(1, 1, 22050);
+    const src = window.audioCtx.createBufferSource();
+    src.buffer = buf; src.connect(window.audioCtx.destination); src.start(0);
+    window.audioReady = true;
+  }catch(e){
+    window.audioReady = false;
+    showLockbar();
   }
-  newDirection();
+}
+function showLockbar(){
+  const b = $("lockbar"); b.classList.add("show");
+  setTimeout(() => b.classList.remove("show"), 5000);
+}
+/* ---------- BGM（ヨガアプリ neuro-yoga-app と同じ4曲・同じ鳴らし方） ----------
+   🔴 <audio> に流させて、Web Audio の GainNode で音量を効かせる。
+     ・iOS Safari は <audio> の volume を黙って無視する（GainNode なら効く）
+     ・decodeAudioData で丸ごと展開すると、長い曲は展開が終わるまで1音も鳴らない
+     ・createMediaElementSource は1つの要素に1回しか呼べないので、要素ごと使い回す
+   🔴 鳴らせない端末（ロックダウンモード等）では BGM だけ諦めて、画面は止めない  */
+const BGM_LIST = [
+  { id:"drone",  label:"ドローン（軽い）",     f:"assets/bgm/drone.mp3"  },
+  { id:"breath", label:"寂静呼吸",             f:"assets/bgm/breath.m4a" },
+  { id:"bed",    label:"Meditative Bed",      f:"assets/bgm/bed.m4a"    },
+  { id:"dorian", label:"Stillness in Dorian", f:"assets/bgm/dorian.m4a" }
+];
+window.bgm = { el:null, node:null, gain:null, loading:false, stall:null };
 
-  const ease = x => (1 - Math.cos(Math.PI * x)) / 2;
-
-  // 1周期の中での「大きさ」0〜1（1＝最大）。見た目の変化が均一になるよう、指数で補間する
-  function phaseLevel() {
-    const smooth = S.ret === "smooth";
-    const M = smooth ? 0 : 0.6;          // 一瞬で戻したあと、最大で見せる時間
-    const D = S.shrink, Hd = S.hold, R = smooth ? S.shrink : 0;
-    const len = M + D + Hd + R;
-    while (t >= len) { t -= len; cycles++; if (S.change) pickQuote(); }
-    if (t < M) return 1;
-    if (t < M + D) return 1 - ease((t - M) / D);
-    if (t < M + D + Hd) return 0;
-    return ease((t - M - D - Hd) / R);
-  }
-
-  // ---------- ループ ----------
-  let last = performance.now(), hudTick = 0;
-  function frame(now) {
-    const dt = Math.min(0.05, (now - last) / 1000); last = now;
-    if (running) { t += dt; total += dt; }
-
-    const min = Math.min(S.min, S.max), max = Math.max(S.min, S.max);
-    const k = phaseLevel();
-    size = min * Math.pow(max / min, k);
-    target.style.fontSize = size.toFixed(2) + "px";
-
-    const w = target.offsetWidth, h = target.offsetHeight;
-    const hw = w / 2, hh = h / 2;
-    if (S.motion === "move") {
-      if (running) {
-        if (total >= nextTurn) newDirection();
-        cx += vx * S.speed * dt; cy += vy * S.speed * dt;
-      }
-      if (w >= W) cx = W / 2;
-      else if (cx - hw < 0) { cx = hw; vx = Math.abs(vx); }
-      else if (cx + hw > W) { cx = W - hw; vx = -Math.abs(vx); }
-      if (h >= H) cy = H / 2;
-      else if (cy - hh < 0) { cy = hh; vy = Math.abs(vy); }
-      else if (cy + hh > H) { cy = H - hh; vy = -Math.abs(vy); }
-    } else {
-      cx = W / 2; cy = H / 2;
-    }
-    target.style.transform = `translate(${(cx - hw).toFixed(1)}px, ${(cy - hh).toFixed(1)}px)`;
-
-    if (now - hudTick > 100) {
-      hudTick = now;
-      $("hudSize").textContent = size.toFixed(1);
-      $("hudMin").textContent = min;
-      $("hudCycles").textContent = cycles;
-      const s = Math.floor(total);
-      $("hudTime").textContent = String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
-    }
-    requestAnimationFrame(frame);
-  }
-
-  // ---------- 操作 ----------
-  let wakeLock = null;
-  async function setRunning(on) {
-    running = on;
-    $("playBtn").firstChild.textContent = on ? "一時停止" : (total > 0 ? "再開" : "スタート");
-    if (on) {
-      try { wakeLock = await navigator.wakeLock?.request("screen"); } catch (e) { wakeLock = null; }
-    } else {
-      try { await wakeLock?.release(); } catch (e) {}
-      wakeLock = null;
-    }
-    poke();
-  }
-  $("playBtn").addEventListener("click", () => setRunning(!running));
-  $("nextBtn").addEventListener("click", () => { pickQuote(); poke(); });
-
-  function togglePanel(force) {
-    const open = force ?? app.classList.contains("panel-closed");
-    app.classList.toggle("panel-closed", !open);
-    $("panelBtn").setAttribute("aria-expanded", String(open));
-  }
-  $("panelBtn").addEventListener("click", () => togglePanel());
-  $("closeBtn").addEventListener("click", () => togglePanel(false));
-  if (matchMedia("(max-width:760px)").matches) togglePanel(false); else togglePanel(true);
-
-  $("fsBtn").addEventListener("click", () => {
-    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
-    else stage.requestFullscreen?.().catch(() => {});
+function bgmMsg(cls, txt){ const m = $("bgmMsg"); m.className = "hint" + (cls ? " " + cls : ""); m.textContent = txt; }
+function bgmRender(){
+  const box = $("bgmPick"); box.innerHTML = "";
+  [{ id:"", label:"流さない" }].concat(BGM_LIST).forEach(t => {
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = t.label;
+    b.className = t.id === S.bgm ? "on" : "";
+    b.setAttribute("aria-pressed", t.id === S.bgm ? "true" : "false");
+    b.addEventListener("click", () => { S.bgm = t.id; save(); bgmRender(); bgmSync(); });
+    box.appendChild(b);
   });
-
-  // 再生中、操作が無ければボタンを隠す
-  let idleTimer;
-  function poke() {
-    stage.classList.remove("idle");
-    clearTimeout(idleTimer);
-    if (running) idleTimer = setTimeout(() => stage.classList.add("idle"), 2500);
-  }
-  ["pointermove", "pointerdown"].forEach(ev => stage.addEventListener(ev, poke));
-
-  document.addEventListener("keydown", e => {
-    if (e.metaKey || e.ctrlKey || e.altKey) return;
-    const k = e.key.toLowerCase();
-    // ボタンやチェックボックスの上では Space をそちらに任せる（二重に切り替わらないように）
-    if (k === " " && e.target.closest("button,input,label")) return;
-    if (k === " ") { e.preventDefault(); setRunning(!running); }
-    else if (k === "n") pickQuote();
-    else if (k === "s") togglePanel();
-    else if (k === "f") $("fsBtn").click();
-    else return;
-    poke();
-  });
-
-  // ---------- 設定フォーム ----------
-  const outputs = {
-    min: v => v + " px", max: v => v + " px", shrink: v => v + " 秒",
-    hold: v => v + " 秒", speed: v => v + " px/秒", turn: v => "約 " + v + " 秒"
-  };
-  function syncForm() {
-    for (const k of Object.keys(outputs)) { $(k).value = S[k]; $(k + "Out").textContent = outputs[k](S[k]); }
-    for (const name of ["lang", "ret", "motion", "dir", "font", "stageColor"]) {
-      const el = document.querySelector(`input[name="${name}"][value="${S[name]}"]`);
-      if (el) el.checked = true;
+}
+function bgmSetGain(){
+  const b = window.bgm;
+  if(!b.gain || !window.audioCtx) return;
+  let speaking = false;
+  try{ speaking = !!(window.speechSynthesis && window.speechSynthesis.speaking); }catch(e){}
+  const vol = (S.bgmVol / 100) * (speaking ? 0.35 : 1);   // 読み上げ中は下げる
+  b.gain.gain.setTargetAtTime(vol, window.audioCtx.currentTime, 0.4);
+}
+/* 鳴らすべき状態か（音オン・曲を選んでいる・動いている）に合わせて、流す／止める */
+function bgmSync(){
+  if(!window.muted && S.bgm && window.running) bgmStart(); else bgmStop();
+}
+async function bgmStart(){
+  const b = window.bgm;
+  const t = BGM_LIST.find(x => x.id === S.bgm);
+  if(!t || b.loading) return;
+  b.loading = true;
+  try{
+    if(!b.el){
+      b.el = new Audio(); b.el.loop = true; b.el.preload = "auto"; b.el.crossOrigin = "anonymous";
     }
-    $("change").checked = S.change; $("showAuthor").checked = S.showAuthor;
-    document.querySelectorAll("#minChips .chip").forEach(c => c.setAttribute("aria-pressed", String(+c.dataset.v === S.min)));
-    const motionOn = S.motion === "move";
-    ["speed", "turn"].forEach(id => $(id).disabled = !motionOn);
-    document.querySelectorAll('input[name="dir"]').forEach(el => el.disabled = !motionOn);
-    applyLook();
-  }
-  function applyLook() {
-    target.classList.toggle("mincho", S.font === "mincho");
-    stage.dataset.stage = S.stageColor;
-    authorEl.hidden = !S.showAuthor || !authorEl.textContent;
-  }
-
-  $("form").addEventListener("input", e => {
-    const el = e.target;
-    if (el.type === "range") {
-      S[el.id] = +el.value;
-      if (el.id === "min" && S.min > S.max - 4) S.max = Math.min(200, S.min + 4 + (S.min % 2));
-      if (el.id === "max" && S.max < S.min + 4) S.min = Math.max(2, S.max - 4);
-    } else if (el.type === "radio") {
-      S[el.name] = el.value;
-      if (el.name === "lang") pickQuote();
-      if (el.name === "dir") newDirection();
-    } else if (el.type === "checkbox") {
-      S[el.id] = el.checked;
+    if(!window.audioCtx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) throw new Error("no AudioContext");
+      window.audioCtx = new AC();
     }
-    syncForm(); save();
-  });
-  $("form").addEventListener("submit", e => e.preventDefault());
-  $("minChips").addEventListener("click", e => {
-    const c = e.target.closest(".chip"); if (!c) return;
-    S.min = +c.dataset.v;
-    if (S.min > S.max - 4) S.max = S.min + 4;
-    syncForm(); save();
-  });
+    if(!b.gain){
+      b.gain = window.audioCtx.createGain(); b.gain.gain.value = 0;
+      b.gain.connect(window.audioCtx.destination);
+      b.node = window.audioCtx.createMediaElementSource(b.el);   // 1回だけ
+      b.node.connect(b.gain);
+    }
+    if(window.audioCtx.state === "suspended") await window.audioCtx.resume();
+    if(b.el.getAttribute("data-id") !== t.id){
+      bgmMsg("", "読み込んでいます…");
+      b.el.setAttribute("data-id", t.id);
+      b.el.src = t.f; b.el.currentTime = 0;
+    }
+    b.el.onplaying = () => { if(S.bgm === t.id){ bgmMsg("", ""); clearTimeout(b.stall); } };
+    b.el.onerror = () => bgmMsg("ng", "この曲を読み込めませんでした。");
+    // 🔴 通信が細いと止まったように見える。15秒で言葉にする
+    clearTimeout(b.stall);
+    b.stall = setTimeout(() => {
+      if(S.bgm === t.id && b.el && b.el.currentTime === 0)
+        bgmMsg("ng", "BGMの読み込みに時間がかかっています。電波の良いところで開き直すか、「流さない」にしてください。");
+    }, 15000);
+    await b.el.play();
+    bgmSetGain();
+  }catch(e){
+    bgmMsg("ng", "この端末ではBGMを鳴らせませんでした（トレーニングはそのまま使えます）。");
+  }
+  b.loading = false;
+}
+/* ---------- ピューン音（文字の大きさに合わせて音の高さが動く） ----------
+   最大サイズ＝低い音（220Hz）、最小サイズ＝高い音（880Hz＝2オクターブ上）。
+   大きさと同じく指数でつなぐので、見た目の縮み方と音の上がり方がそろう。
+   鳴らすのは「縮んでいる／大きくなっている」間だけ。止まっている間は無音。  */
+window.sweep = { osc:null, gain:null };
+const SWEEP_LOW = 220, SWEEP_HIGH = 880;
+function sweepEnsure(){
+  const w = window.sweep;
+  if(w.osc || !window.audioCtx) return;
+  try{
+    const ctx = window.audioCtx;
+    w.osc = ctx.createOscillator(); w.osc.type = "sine";
+    w.gain = ctx.createGain(); w.gain.gain.value = 0;
+    w.osc.connect(w.gain); w.gain.connect(ctx.destination);
+    w.osc.frequency.value = SWEEP_LOW;
+    w.osc.start();
+  }catch(e){ w.osc = null; }
+}
+function sweepUpdate(phase, k){
+  const w = window.sweep;
+  if(!w.osc){ if(window.running && S.sweep && !window.muted) sweepEnsure(); if(!w.osc) return; }
+  const ctx = window.audioCtx, now = ctx.currentTime;
+  const moving = phase === "shrink" || phase === "grow";
+  const on = window.running && moving && S.sweep && !window.muted && document.visibilityState === "visible";
+  let speaking = false;
+  try{ speaking = !!(window.speechSynthesis && window.speechSynthesis.speaking); }catch(e){}
+  const vol = on ? 0.12 * (S.sweepVol / 100) * (speaking ? 0.35 : 1) : 0;
+  const f = SWEEP_LOW * Math.pow(SWEEP_HIGH / SWEEP_LOW, 1 - k);
+  w.osc.frequency.setTargetAtTime(f, now, 0.02);
+  w.gain.gain.setTargetAtTime(vol, now, on ? 0.05 : 0.08);
+}
+function sweepSilence(){
+  const w = window.sweep;
+  if(w.gain && window.audioCtx){ try{ w.gain.gain.setTargetAtTime(0, window.audioCtx.currentTime, 0.03); }catch(e){} }
+}
 
-  syncForm();
-  pickQuote();
+function bgmStop(){
+  const b = window.bgm;
+  clearTimeout(b.stall);
+  if(b.el){ try{ b.el.pause(); }catch(e){} }
+}
+function speakText(text, lang){
+  if(window.muted || !S.speak) return;
+  try{
+    if(!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang === "en" ? "en-US" : "ja-JP"; u.rate = 0.95;
+    u.onstart = bgmSetGain; u.onend = bgmSetGain; u.onerror = bgmSetGain;
+    window.speechSynthesis.speak(u);
+  }catch(e){ /* 画面だけで継続 */ }
+}
+function stopSpeak(){ try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){} }
+
+/* =========================================================
+   いま出している言葉
+   { text, author, lang, ja(英語の意味), isMeaning, src }
+   ========================================================= */
+const stage = $("stage"), target = $("target"), quoteEl = $("quote"), authorEl = $("author");
+window.cur = null;
+let lastPick = "";
+
+function pickNew(){
+  const pool = S.lang === "mix"
+    ? [...QUOTES.ja.map(q => ["ja", q]), ...QUOTES.en.map(q => ["en", q])]
+    : QUOTES[S.lang].map(q => [S.lang, q]);
+  let item;
+  do{ item = pool[Math.floor(Math.random() * pool.length)]; }while(pool.length > 1 && item[1][0] === lastPick);
+  lastPick = item[1][0];
+  const [lang, q] = item;
+  show({ text:q[0], author:q[1] || "", lang, ja:q[2] || "", isMeaning:false });
+}
+function meaningOf(c){ return { text:c.ja, author:c.author, lang:"ja", ja:"", isMeaning:true, src:c }; }
+
+/* 1回縮み終わったときに、次に何を出すか */
+function nextItem(){
+  const c = window.cur;
+  if(c.isMeaning){ if(S.change) pickNew(); else show(c.src); return; }
+  if(S.meaning && c.lang === "en" && c.ja){ show(meaningOf(c)); return; }
+  if(S.change) pickNew();
+}
+function authorText(c){
+  const who = S.showAuthor && c.author ? c.author : "";
+  if(c.isMeaning) return "日本語の意味" + (who ? "（" + who + "）" : "");
+  return who ? "— " + who : "";
+}
+function show(c){
+  window.cur = c;
+  target.lang = c.lang;
+  relayout();
+}
+
+/* 🔴 最大サイズで並べたときの改行位置を測り、その行のまま固定する。
+   こうしないと、縮むにつれて2行が1行にまとまり、読む場所が途中で変わる */
+function setLines(el, text){
+  el.textContent = text;
+  if(!text) return;
+  const node = el.firstChild, range = document.createRange();
+  const lines = []; let line = "", top = null, off = 0;
+  for(const ch of Array.from(text)){
+    range.setStart(node, off); range.setEnd(node, off + ch.length); off += ch.length;
+    const r = range.getClientRects()[0];
+    if(r && r.width > 0){
+      if(top !== null && r.top - top > r.height * 0.5){ lines.push(line); line = ""; }
+      if(top === null || r.top - top > r.height * 0.5) top = r.top;
+    }
+    line += ch;
+  }
+  lines.push(line);
+  el.textContent = "";
+  lines.map(s => s.trim()).filter(Boolean).forEach(s => {
+    const sp = document.createElement("span"); sp.className = "ln"; sp.textContent = s; el.appendChild(sp);
+  });
+}
+function relayout(){
+  const c = window.cur; if(!c) return;
+  const keep = target.style.fontSize;
+  target.style.fontSize = Math.max(S.min, S.max) + "px";
+  setLines(quoteEl, c.text);
+  const a = authorText(c);
+  authorEl.hidden = !a;
+  setLines(authorEl, a);
+  target.style.fontSize = keep;
+}
+
+/* =========================================================
+   動き
+   ========================================================= */
+window.running = false;
+let t = 0, total = 0, cycles = 0;
+let W = 0, H = 0, cx = 0, cy = 0, vx = 1, vy = 0, nextTurn = 0, dirIndex = -1;
+
+function measureStage(){
+  W = stage.clientWidth; H = stage.clientHeight;
+  target.style.maxWidth = Math.round(W * 0.86) + "px";
+  relayout();
+}
+const rand = (a, b) => a + Math.random() * (b - a);
+function newDirection(){
+  let ang;
+  if(S.dir === "8"){
+    let i; do{ i = Math.floor(Math.random() * 8); }while(i === dirIndex);
+    dirIndex = i; ang = i * Math.PI / 4;
+  }else{
+    ang = Math.random() * Math.PI * 2;
+  }
+  vx = Math.cos(ang); vy = Math.sin(ang);
+  nextTurn = total + rand(S.turn * 0.5, S.turn * 1.5);
+}
+const ease = x => (1 - Math.cos(Math.PI * x)) / 2;
+
+/* 1周期の中の位置から、大きさ（0〜1。1＝最大）と局面を出す */
+function phaseLevel(){
+  const smooth = S.ret === "smooth";
+  const M = smooth ? 0 : 0.6;           // 一瞬で戻したあと、最大で見せる時間
+  const D = S.shrink, Hd = S.hold, R = smooth ? S.shrink : 0;
+  const len = M + D + Hd + R;
+  while(t >= len){ t -= len; cycles++; onCycle(); }
+  if(t < M) return ["max", 1];
+  if(t < M + D) return ["shrink", 1 - ease((t - M) / D)];
+  if(t < M + D + Hd) return ["hold", 0];
+  return ["grow", ease((t - M - D - Hd) / R)];
+}
+function onCycle(){
+  nextItem();
+  speakText(window.cur.text, window.cur.lang);
+}
+
+let last = performance.now(), hudTick = 0;
+function frame(now){
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if(window.running){ t += dt; total += dt; }
+
+  const min = Math.min(S.min, S.max), max = Math.max(S.min, S.max);
+  const [phase, k] = phaseLevel();
+  sweepUpdate(phase, k);
+  const size = min * Math.pow(max / min, k);   // 指数で補間＝小さい側の変化が速すぎない
+  target.style.fontSize = size.toFixed(2) + "px";
+
+  const w = target.offsetWidth, h = target.offsetHeight, hw = w / 2, hh = h / 2;
+  if(S.motion === "move"){
+    if(window.running){
+      if(total >= nextTurn) newDirection();
+      cx += vx * S.speed * dt; cy += vy * S.speed * dt;
+    }
+    if(w >= W) cx = W / 2;
+    else if(cx - hw < 0){ cx = hw; vx = Math.abs(vx); }
+    else if(cx + hw > W){ cx = W - hw; vx = -Math.abs(vx); }
+    if(h >= H) cy = H / 2;
+    else if(cy - hh < 0){ cy = hh; vy = Math.abs(vy); }
+    else if(cy + hh > H){ cy = H - hh; vy = -Math.abs(vy); }
+  }else{
+    cx = W / 2; cy = H / 2;
+  }
+  target.style.transform = "translate(" + (cx - hw).toFixed(1) + "px," + (cy - hh).toFixed(1) + "px)";
+
+  if(now - hudTick > 100){
+    hudTick = now;
+    $("hudSize").textContent = size.toFixed(1);
+    $("hudMin").textContent = min;
+    $("hudCycles").textContent = cycles;
+    const s = Math.floor(total);
+    $("hudTime").textContent = String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+  }
   requestAnimationFrame(frame);
+}
 
-  if ("serviceWorker" in navigator) {
-    addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
+/* =========================================================
+   Wake Lock（動いている間は画面を暗くしない）
+   ========================================================= */
+window.wakeLock = null;
+async function requestWakeLock(){
+  try{ if("wakeLock" in navigator) window.wakeLock = await navigator.wakeLock.request("screen"); }catch(e){ window.wakeLock = null; }
+}
+function releaseWakeLock(){
+  try{ if(window.wakeLock){ window.wakeLock.release(); window.wakeLock = null; } }catch(e){}
+}
+document.addEventListener("visibilitychange", () => {
+  if(document.visibilityState !== "visible") sweepSilence();   // 裏に回ると描画が止まり、音だけ鳴り続けるため
+  if(document.visibilityState === "visible" && window.running) requestWakeLock();
+});
+
+/* =========================================================
+   操作
+   ========================================================= */
+function setRunning(on){
+  window.running = on;
+  $("playLabel").textContent = on ? "一時停止" : (total > 0 ? "再開" : "スタート");
+  if(on){
+    requestWakeLock();
+    if(total === 0) speakText(window.cur.text, window.cur.lang);
+  }else{
+    releaseWakeLock(); stopSpeak(); sweepSilence();
   }
-})();
+  bgmSync();
+  poke();
+}
+$("playBtn").addEventListener("click", () => setRunning(!window.running));
+$("nextBtn").addEventListener("click", () => {
+  pickNew(); t = 0;
+  if(window.running) speakText(window.cur.text, window.cur.lang);
+  poke();
+});
+$("fsBtn").addEventListener("click", () => {
+  try{
+    if(document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else document.documentElement.requestFullscreen().catch(() => {});
+  }catch(e){}
+});
+
+/* 動いている間、操作が無ければボタンを隠す */
+let idleTimer;
+function poke(){
+  document.body.classList.remove("idle");
+  clearTimeout(idleTimer);
+  if(window.running && !side.classList.contains("open")) idleTimer = setTimeout(() => document.body.classList.add("idle"), 2500);
+}
+["pointermove", "pointerdown"].forEach(ev => document.addEventListener(ev, poke));
+
+document.addEventListener("keydown", e => {
+  if(!$("splash").classList.contains("hide")) return;
+  if(e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key.toLowerCase();
+  if(k === " " && e.target.closest("button,input,label")) return;   // ボタンの上では Space をそちらに任せる
+  if(side.classList.contains("open") && k !== "m") return;
+  if(k === " "){ e.preventDefault(); setRunning(!window.running); }
+  else if(k === "n") $("nextBtn").click();
+  else if(k === "m"){ side.classList.contains("open") ? closeMenu() : openMenu(); }
+  else if(k === "f") $("fsBtn").click();
+  else return;
+  poke();
+});
+
+/* =========================================================
+   サイドメニュー（フォーカストラップ＋ESC）
+   ========================================================= */
+const side = $("side"), overlay = $("overlay");
+window.lastFocus = null;
+function openMenu(){
+  window.lastFocus = document.activeElement;
+  side.classList.add("open"); overlay.classList.add("open");
+  side.setAttribute("aria-hidden", "false");
+  $("closeMenu").focus();
+  document.addEventListener("keydown", menuKeydown);
+  poke();
+}
+function closeMenu(){
+  side.classList.remove("open"); overlay.classList.remove("open");
+  side.setAttribute("aria-hidden", "true");
+  document.removeEventListener("keydown", menuKeydown);
+  if(window.lastFocus && window.lastFocus.focus) window.lastFocus.focus();
+  poke();
+}
+function menuKeydown(e){
+  if(e.key === "Escape"){ closeMenu(); return; }
+  if(e.key === "Tab"){
+    const f = side.querySelectorAll("button, a[href], input:not([disabled])");
+    if(!f.length) return;
+    const first = f[0], lastEl = f[f.length - 1];
+    if(e.shiftKey && document.activeElement === first){ e.preventDefault(); lastEl.focus(); }
+    else if(!e.shiftKey && document.activeElement === lastEl){ e.preventDefault(); first.focus(); }
+  }
+}
+$("menuBtn").addEventListener("click", openMenu);
+$("closeMenu").addEventListener("click", closeMenu);
+overlay.addEventListener("click", closeMenu);
+
+/* =========================================================
+   設定フォーム
+   ========================================================= */
+const outputs = {
+  min:v => v + " px", max:v => v + " px", shrink:v => v + " 秒",
+  hold:v => v + " 秒", speed:v => v + " px/秒", turn:v => "約 " + v + " 秒"
+};
+function syncForm(){
+  for(const k of Object.keys(outputs)){ $(k).value = S[k]; $(k + "Out").textContent = outputs[k](S[k]); }
+  for(const name of ["lang", "ret", "motion", "dir", "font", "stageColor"]){
+    const el = document.querySelector('input[name="' + name + '"][value="' + S[name] + '"]');
+    if(el) el.checked = true;
+  }
+  for(const id of ["meaning", "change", "showAuthor", "speak", "sweep"]) $(id).checked = S[id];
+  $("sweepVol").value = S.sweepVol; $("sweepVolOut").textContent = S.sweepVol;
+  $("sweepVol").disabled = !S.sweep;
+  $("bgmVol").value = S.bgmVol; $("bgmVolOut").textContent = S.bgmVol;
+  document.querySelectorAll("#minChips .chip").forEach(c => c.setAttribute("aria-pressed", String(+c.dataset.v === S.min)));
+  const moving = S.motion === "move";
+  ["speed", "turn"].forEach(id => $(id).disabled = !moving);
+  document.querySelectorAll('input[name="dir"]').forEach(el => el.disabled = !moving);
+  $("meaning").disabled = S.lang === "ja";
+  $("meaningRow").classList.toggle("disabled", S.lang === "ja");
+  target.classList.toggle("mincho", S.font === "mincho");
+  stage.dataset.stage = S.stageColor;
+  applyMuteUI();
+}
+
+$("form").addEventListener("input", e => {
+  const el = e.target;
+  let needLayout = false;
+  if(el.id === "soundOn"){ setMuted(!el.checked); return; }
+  if(el.id === "sweepVol"){ S.sweepVol = +el.value; $("sweepVolOut").textContent = S.sweepVol; save(); return; }
+  if(el.id === "bgmVol"){ S.bgmVol = +el.value; $("bgmVolOut").textContent = S.bgmVol; save(); bgmSetGain(); return; }
+  if(el.type === "range"){
+    S[el.id] = +el.value;
+    if(el.id === "min" && S.min > S.max - 4) S.max = Math.min(200, S.min + 4);
+    if(el.id === "max" && S.max < S.min + 4) S.min = Math.max(2, S.max - 4);
+    needLayout = el.id === "max" || el.id === "min";
+  }else if(el.type === "radio"){
+    S[el.name] = el.value;
+    if(el.name === "lang"){ pickNew(); t = 0; }
+    if(el.name === "dir") newDirection();
+    needLayout = el.name === "font";
+  }else if(el.type === "checkbox"){
+    S[el.id] = el.checked;
+    if(el.id === "showAuthor") needLayout = true;
+    if(el.id === "speak" && !el.checked) stopSpeak();
+  }
+  syncForm(); save();
+  if(needLayout) relayout();
+});
+$("form").addEventListener("submit", e => e.preventDefault());
+$("minChips").addEventListener("click", e => {
+  const c = e.target.closest(".chip"); if(!c) return;
+  S.min = +c.dataset.v;
+  if(S.min > S.max - 4) S.max = S.min + 4;
+  syncForm(); save(); relayout();
+});
+
+/* =========================================================
+   スプラッシュ：タップで開始（このタップで音を有効にする）
+   ========================================================= */
+$("muteToggle").addEventListener("click", e => { e.stopPropagation(); setMuted(!window.muted); });
+$("tapStart").addEventListener("click", () => {
+  unlockAudio();
+  $("splash").classList.add("hide");
+  $("splash").setAttribute("aria-hidden", "true");
+  $("playBtn").focus();
+});
+
+/* =========================================================
+   起動
+   ========================================================= */
+syncForm();
+bgmRender();
+new ResizeObserver(measureStage).observe(stage);
+pickNew();
+measureStage(); cx = W / 2; cy = H / 2;
+newDirection();
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(relayout).catch(() => {});
+requestAnimationFrame(frame);
+
+/* =========================================================
+   Service Worker 登録 ＋ controllerchange で自動リロード
+   （初回の登録では再読み込みしない＝開いた直後に画面が飛ばない）
+   ========================================================= */
+if("serviceWorker" in navigator){
+  const hadController = !!navigator.serviceWorker.controller;
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if(refreshing || !hadController) return; refreshing = true; window.location.reload();
+  });
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(err => console.warn("[SW] register failed", err));
+  });
+}
 </script>
 </body>
 </html>
