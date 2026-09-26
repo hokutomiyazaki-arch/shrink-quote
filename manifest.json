@@ -1,0 +1,19 @@
+{
+  "name": "縮む名言 ─ 視覚トレーニング",
+  "short_name": "縮む名言",
+  "description": "名言が最小サイズまで縮んでは戻り、画面の中を上下左右・斜めに動き回る視覚トレーニング。",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#0D1119",
+  "theme_color": "#0D1119",
+  "scope": "./",
+  "lang": "ja",
+  "dir": "ltr",
+  "categories": ["health", "fitness", "education"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
